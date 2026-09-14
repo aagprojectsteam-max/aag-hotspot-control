@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=AAG Hotspot
+Comment=Cellular Internet sharing and isolated local Wi-Fi
+Comment[he]=רשת Wi-Fi מקומית עם שיתוף אינטרנט סלולרי או בידוד מקומי
+Exec=/usr/bin/aag-hotspot-gui
+TryExec=/usr/bin/aag-hotspot-gui
+Icon=aag-hotspot
+Terminal=false
+Categories=Network;
+Keywords=WiFi;Hotspot;Cellular;
+StartupNotify=true
+DBusActivatable=false

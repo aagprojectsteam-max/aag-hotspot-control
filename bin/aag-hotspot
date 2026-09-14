@@ -1,0 +1,11 @@
+#!/usr/bin/python3 -I
+import os
+from pathlib import Path
+import sys
+if os.geteuid() == 0:
+    raise SystemExit('Run the CLI as your normal user; it invokes its scoped helper when needed.')
+base = Path(__file__).resolve().parents[1]
+library = base / 'lib' if (base / 'lib/aag_hotspot/cli.py').is_file() else base / 'lib/aag-hotspot'
+sys.path.insert(0, str(library))
+from aag_hotspot.cli import main
+raise SystemExit(main())

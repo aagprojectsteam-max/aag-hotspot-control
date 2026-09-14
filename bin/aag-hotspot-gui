@@ -1,0 +1,10 @@
+#!/usr/bin/python3 -I
+import os
+from pathlib import Path
+import sys
+if os.geteuid() == 0: raise SystemExit('Run AAG Hotspot as your desktop user, not root.')
+base = Path(__file__).resolve().parents[1]
+library = base / 'lib' if (base / 'lib/aag_hotspot/gui.py').is_file() else base / 'lib/aag-hotspot'
+sys.path.insert(0, str(library))
+from aag_hotspot.gui import main
+raise SystemExit(main(sys.argv))

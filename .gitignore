@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.venv/
+/dist/
+/build/
+/reports/
+**/host.json
+**/credentials.json
+*.nmconnection
+*.secret
+*.key
+*.pem
+.env

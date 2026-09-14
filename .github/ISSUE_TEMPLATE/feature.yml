@@ -1,0 +1,21 @@
+name: Feature request
+description: Suggest a focused improvement
+title: '[Feature]: '
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What user problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior and alternatives
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Compatibility, privacy or privilege considerations
+      description: Do not include private identifiers or credentials.
