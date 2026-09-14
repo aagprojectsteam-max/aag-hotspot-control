@@ -141,7 +141,7 @@ def install(root, system, wifi_interface=None, rebind=False):
         payloads[BINDING] = binding_data
     elif receipt and str(BINDING) in receipt['files']:
         payloads[BINDING] = checked_path(root, BINDING).read_bytes()
-    record = {'schema': 1, 'version': '0.2.0', 'files': {}}
+    record = {'schema': 1, 'version': '0.2.1', 'files': {}}
     pending = {}
     for relative, data in payloads.items():
         path = checked_path(root, relative)
@@ -270,7 +270,7 @@ def main():
     p.add_argument('--dry-run', action='store_true', help='Uninstall only: validate scope without deleting files')
     args = p.parse_args()
     if args.system:
-        if os.geteuid() != 0 and not args.check: p.error('--system requires administrator execution')
+        if os.geteuid() != 0: p.error('--system requires administrator execution')
         root = Path('/')
     else:
         if args.root.is_symlink(): p.error('Staging root cannot be a symlink')

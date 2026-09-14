@@ -9,7 +9,7 @@ from pathlib import Path
 import subprocess
 import tarfile
 ROOT=Path(__file__).resolve().parents[1]
-VERSION='0.2.0'
+VERSION='0.2.1'
 TOP='aag-hotspot-control-v'+VERSION
 DIRECTORIES={'bin','lib','desktop','polkit','systemd','config','docs','scripts','tests','.github'}
 TOP_FILES={'README.md','LICENSE','CHANGELOG.md','SECURITY.md','CONTRIBUTING.md','THIRD_PARTY.md','RELEASE_NOTES.md','.gitignore','install.sh','uninstall.sh'}

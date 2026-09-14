@@ -5,7 +5,7 @@ implementation. Private development history, machine reports, installed receipts
 raw network dumps and recovery-runner artifacts are excluded from public history.
 
 The development source baseline passed 276 local tests before publication work.
-The public suite contains **182 tests** focused on distributed runtime, readiness,
+The public suite contains **184 tests** focused on distributed runtime, readiness,
 cleanup, operation locks, client joins/expiry, GUI/tray models, packaging and local
 binding. Development-only forensic/live-runner harnesses are not shipped; their
 omission is not represented as a pass of those tests in the public artifact.
@@ -14,7 +14,7 @@ Public checks performed without activating a real hotspot:
 
 - Python/shell syntax, desktop entry and fixed Polkit scope.
 - ShellCheck 0.11.0, official checksum-verified tool.
-- 182 mock/unit/regression tests, including Internet/local/OFF transitions,
+- 184 mock/unit/regression tests, including Internet/local/OFF transitions,
   readiness timeout/rfkill cases, partial cleanup and ownership refusal.
 - Read-only environment selection and unbound/invalid binding refusal.
 - Gitleaks 8.30.1 and dedicated privacy/large-file checks.

@@ -137,6 +137,18 @@ class PublicPackageTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError,'Modified installed'):package.stop_for_uninstall()
             run.assert_not_called()
 
+    def test_protected_system_check_requires_admin_before_probe(self):
+        import contextlib,io
+        with patch.object(package.sys,'argv',['package','install','--system','--check']),patch.object(package.os,'geteuid',return_value=1000),patch.object(environment,'detect') as probe,contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as caught:package.main()
+            self.assertEqual(caught.exception.code,2);probe.assert_not_called()
+
+    def test_admin_system_check_is_read_only(self):
+        import contextlib,io
+        with patch.object(package.sys,'argv',['package','install','--system','--check']),patch.object(package.os,'geteuid',return_value=0),patch.object(environment,'detect',return_value=binding.UNBOUND),patch('aag_hotspot.state.Store',side_effect=AssertionError('No runtime writes')),contextlib.redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(package.main(),0)
+            self.assertEqual(json.loads(output.getvalue()),{'compatible':True,'network_changes':False,'secrets_read':False})
+
     def test_repeated_system_uninstall_never_recreates_runtime(self):
         import contextlib,io
         with patch.object(package.sys,'argv',['package','uninstall','--system']),patch.object(package.os,'geteuid',return_value=0),patch.object(package,'installed_receipt',return_value=None),patch.object(package,'stop_for_uninstall') as stop,patch('aag_hotspot.state.Store',side_effect=AssertionError('No runtime recreation')),contextlib.redirect_stdout(io.StringIO()) as output:

@@ -1,4 +1,8 @@
-# AAG Hotspot Control v0.2.0 — first public preview
+# AAG Hotspot Control v0.2.1 — public preview
+
+This patch corrects the optional compatibility-check command: run
+`sudo ./install.sh --check` to inspect protected NetworkManager configuration.
+Inspection remains read-only. The installer already required administrator access.
 
 A native Ubuntu/GNOME Wi-Fi hotspot controller with Internet sharing, local-only
 LAN mode, connected-device visibility and a Hebrew RTL interface.

@@ -14,7 +14,7 @@ On a development machine with Python 3, PyGObject/GTK4/Libadwaita and desktop-fi
 /usr/bin/python3 scripts/check-static.py
 /usr/bin/python3 scripts/privacy_scan.py
 /usr/bin/python3 scripts/build_release.py
-/usr/bin/python3 scripts/test_artifact.py dist/aag-hotspot-control-v0.2.0.tar.gz
+/usr/bin/python3 scripts/test_artifact.py dist/aag-hotspot-control-v0.2.1.tar.gz
 git diff --check
 ```
 

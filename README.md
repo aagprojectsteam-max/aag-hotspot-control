@@ -5,7 +5,7 @@ Share an existing cellular Internet connection, create a **local-only LAN withou
 sharing Internet**, or turn the hotspot off. See connected devices without
 switching to a terminal.
 
-**First public preview: v0.2.0.** The GUI is currently **Hebrew RTL only**; there is
+**Current public preview: v0.2.1.** The GUI is currently **Hebrew RTL only**; there is
 no English GUI yet. This is a conservative, hardware-dependent tool, not a universal
 replacement for every Linux network manager. Read the requirements before installing.
 
@@ -65,9 +65,9 @@ to make an incompatible machine pass. See [compatibility](docs/COMPATIBILITY.md)
 
 ## Installation
 
-Download these files from the [v0.2.0 release](https://github.com/aagprojectsteam-max/aag-hotspot-control/releases/tag/v0.2.0):
+Download these files from the [v0.2.1 release](https://github.com/aagprojectsteam-max/aag-hotspot-control/releases/tag/v0.2.1):
 
-- `aag-hotspot-control-v0.2.0.tar.gz`
+- `aag-hotspot-control-v0.2.1.tar.gz`
 - `SHA256SUMS`
 - `release-manifest.json`
 
@@ -75,8 +75,8 @@ Place them in the same directory, then:
 
 ```sh
 sha256sum --check SHA256SUMS
-tar -xzf aag-hotspot-control-v0.2.0.tar.gz
-cd aag-hotspot-control-v0.2.0
+tar -xzf aag-hotspot-control-v0.2.1.tar.gz
+cd aag-hotspot-control-v0.2.1
 sudo ./install.sh
 ```
 
@@ -105,7 +105,7 @@ Enable that extension through GNOME Extensions if necessary; the application
 installer does not change desktop extensions or login autostart. The main window
 works without a tray host.
 
-Run `./install.sh --check` for read-only compatibility checks. If several radios
+Run `sudo ./install.sh --check` for read-only compatibility checks. Administrator access is needed to inspect protected NetworkManager configuration. If several radios
 exist, use `sudo ./install.sh --wifi-interface wlan0` with the intended existing
 interface name. No interface is renamed or created during installation.
 
@@ -114,7 +114,7 @@ For development, cloning is optional:
 ```sh
 git clone https://github.com/aagprojectsteam-max/aag-hotspot-control.git
 cd aag-hotspot-control
-./install.sh --check
+sudo ./install.sh --check
 sudo ./install.sh
 ```
 

@@ -6,7 +6,7 @@ NetworkManager profiles, credentials, journals or firewall dumps.
 
 ## Installation refused
 
-`./install.sh --check` describes the first unsupported prerequisite without writing
+`sudo ./install.sh --check` describes the first unsupported prerequisite without writing
 files. Check Ubuntu/architecture, NetworkManager 1.54, GTK4/Libadwaita, AP support,
 channel legality, current NM iptables backend and pre-existing forwarding=1.
 The installer preserves global networking. Read [compatibility](COMPATIBILITY.md)

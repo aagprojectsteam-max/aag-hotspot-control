@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1 — 2026-09-14 — public preview correction
+
+- Require administrator execution for system compatibility inspection because
+  NetworkManager's effective configuration can be protected.
+- Correct the read-only check command to `sudo ./install.sh --check`; inspection
+  still creates no files or network state.
+- Retain immutable 0.2.0 history/tag; no network policy or activation changes.
+
 ## 0.2.0 — 2026-09-14 — first public preview
 
 - Internet-sharing and local-only hotspot modes with an idempotent OFF path.
