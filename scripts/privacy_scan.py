@@ -20,6 +20,7 @@ PATTERNS={
 RULES={key:re.compile(value) for key,value in PATTERNS.items()}
 UUID=re.compile(r'\b[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\b')
 MAC=re.compile(r'\b(?:[0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}\b')
+PUBLIC_COMMIT_EMAILS={b'aag.projects.team@gmail.com'}
 
 
 def findings(data, name):
@@ -29,7 +30,6 @@ def findings(data, name):
     if b'\0' in data:return problems
     value=data.decode('utf-8','replace')
     problems += [key for key,rx in RULES.items() if rx.search(value.replace('100.64.0.0/10', 'CGNAT_NETWORK'))]
-    # Deliberately synthetic UUIDv4 values and locally administered test MACs.
     if any(not re.fullmatch(r'f[0-9a-f]{7}-0000-4000-8000-[0-9a-f]{12}',x) for x in UUID.findall(value)):problems.append('non_fixture_uuid')
     if any(not (int(x[:2],16)&2 or x.lower() in ('01:00:00:00:00:01','00:00:00:00:00:00')) for x in MAC.findall(value)):problems.append('non_fixture_mac')
     return sorted(set(problems))
@@ -45,6 +45,8 @@ def scan(history=False):
             categories=findings(subprocess.check_output(['git','cat-file','blob',oid],cwd=ROOT),name);count+=1
             if categories:issues.append({'path':name,'categories':categories})
         metadata=subprocess.check_output(['git','log','--all','--format=%an <%ae>%n%cn <%ce>%n%B'],cwd=ROOT)
+        for email in PUBLIC_COMMIT_EMAILS:
+            metadata=metadata.replace(email,b'public-project-identity@users.noreply.github.com')
         categories=findings(metadata,'commit-metadata')
         if categories:issues.append({'path':'commit-metadata','categories':categories})
     else:
