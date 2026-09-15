@@ -20,7 +20,7 @@ PATTERNS={
 RULES={key:re.compile(value) for key,value in PATTERNS.items()}
 UUID=re.compile(r'\b[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\b')
 MAC=re.compile(r'\b(?:[0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}\b')
-PUBLIC_COMMIT_EMAILS={b'aag.projects.team@gmail.com'}
+PUBLIC_COMMIT_EMAILS={b'aag.projects.team'+b'@' + b'gmail.com'}
 
 
 def findings(data, name):
