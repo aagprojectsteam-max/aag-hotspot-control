@@ -56,7 +56,9 @@ Git candidates passed. Network baseline was restored to OFF.
 Internet live validation was blocked by a pre-existing mismatch between the
 currently active cellular profile and that installation's fixed cellular binding.
 The binding and networking code were preserved. Internet reveal passes mocks;
-it is not counted as live PASS. Independent Local-only live validation is pending.
+it is not counted as live PASS. Independent Local-only live validation did not complete OS authentication; the
+pending request was cancelled before activation. Local reveal passes mocks but
+is not counted as live PASS. No real associated-client continuity is claimed.
 Physical-client/BeeBEEP acceptance and Wi-Fi STA+AP remain unvalidated.
 
 The public checkout also preserved three newer upstream documentation/privacy
