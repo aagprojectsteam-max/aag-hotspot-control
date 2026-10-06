@@ -16,14 +16,17 @@ Never share credential files or saved NetworkManager profiles.
 
 AAG's only firewall table is `inet aag_hotspot`, with a per-session ownership marker
 and verified table/chain receipts. It does not flush the global ruleset or modify
-Docker/Tailscale tables. NetworkManager owns its shared-mode rules. OFF waits for
+Docker/Tailscale/ZeroTier tables. NetworkManager owns its shared-mode rules. OFF waits for
 NM-owned sharing cleanup and removes only proven AAG state.
 
 Local-only mode drops external IPv4 forwarding before any outside-interface accept,
 blocks IPv6 ingress/forward/output for the AP and disables AP IPv6 addressing.
 Recursive DNS is blocked, including an already-established DNS flow on downgrade.
-Internet mode forwards only over `wwan0`, blocks private/link-local/CGNAT/multicast
-upstream destinations and admits related replies. This is host-side structural
+Internet mode forwards only over the validated kernel-selected uplink and admits
+established/related replies. RFC1918 destinations on that physical uplink are
+allowed so private upstream routers work. Other interfaces, including Docker,
+Tailscale and ZeroTier, remain excluded. Link-local/CGNAT/multicast destinations
+remain blocked. This is host-side structural
 policy evidence; actual client traffic still requires hardware acceptance.
 
 Host services are intentionally restricted. DHCP, permitted Internet-mode DNS,

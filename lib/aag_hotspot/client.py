@@ -47,12 +47,9 @@ def status():
         pass
     except (OSError, ValueError, TypeError, AttributeError):
         value.update(mode='unknown', phase='unknown', health='UNKNOWN', error='STATE_UNREADABLE')
-    route = probe(['/usr/sbin/ip', '-j', '-4', 'route', 'get', '1.1.1.1'])
-    try:
-        routes = json.loads(route['stdout']) if route['ok'] else []
-        dev = routes[0].get('dev') if isinstance(routes, list) and routes and isinstance(routes[0], dict) else None
-        value['uplink'] = dev if isinstance(dev, str) else None
-    except ValueError: value['uplink'] = None
+    from .uplink import detect, LOCAL
+    selected=LOCAL if value.get('mode')=='local' else detect()
+    value.update(selected.status())
     value['installed'] = installed
     if not installed: value.update(health='NOT_INSTALLED', error='INSTALLATION_REQUIRED')
     return expire(value)
@@ -65,8 +62,15 @@ def doctor():
     current = status()
     checks['helper_installed'] = current['installed']
     checks['password_configured'] = current['configured']
-    checks['cellular_public_route'] = current['uplink'] == 'wwan0'
-    return {'status': current, 'checks': checks, 'protected_firewall_inspection': 'REQUIRES_PRIVILEGED_DOCTOR',
+    from .uplink import detect
+    selected=detect()
+    checks['uplink_supported'] = selected.supported
+    checks['cellular_public_route'] = current['uplink_type'] == 'CELLULAR' # legacy key
+    from .wifi import capability
+    from .binding import PHY
+    result=probe(['/usr/sbin/iw','phy','phy'+str(PHY),'info'])
+    checks['wifi_sta_ap']=capability(result['stdout'])
+    return {'status': current, 'checks': checks, 'selected_public_uplink':selected.public(), 'protected_firewall_inspection': 'REQUIRES_PRIVILEGED_DOCTOR',
             'physical_client_validation': 'NOT_TESTED', 'wifi_uplink': 'UNVALIDATED_DISABLED'}
 
 

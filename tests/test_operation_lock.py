@@ -81,7 +81,7 @@ class OperationLockTests(unittest.TestCase):
     def assert_off(self):
         self.assertIsNone(self.store.data)
         self.assertIsNone(self.backend.i); self.assertIsNone(self.backend.p); self.assertIsNone(self.backend.t)
-        self.assertEqual(self.backend.a, {policy.CELL_UUID: ['wwan0mbim0']})
+        self.assertEqual(self.backend.a, {'f0000001-0000-4000-8000-000000000001': ['wwan0mbim0']})
         self.assertEqual(self.backend.rv, 'disabled'); self.assertTrue(self.backend.av)
         self.assertEqual(self.store.public['mode'], 'off')
 

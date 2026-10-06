@@ -88,7 +88,7 @@ def validate_manifest(data, boot_id):
     if not all(canonical_uuid(v) for v in base["profile_uuids"]):
         raise SafetyError("Invalid baseline profile UUID.")
     if not PROTECTED_UUIDS.issubset(base["profile_uuids"]):
-        raise SafetyError("Baseline must include all locally bound protected profiles.")
+        raise SafetyError("Baseline must include protected profiles.")
     if STA not in base["interface_names"] or not all(mac_valid(v) for v in base["interface_macs"]):
         raise SafetyError("Invalid Wi-Fi baseline.")
     if base["wifi_radio"] not in ("enabled", "disabled") or type(base["sta_autoconnect"]) is not bool:

@@ -42,7 +42,7 @@ def detect(wifi_interface=None):
         m=re.fullmatch(r'Interface (\S+)',line.strip())
         if m:current={'wifi_interface':m[1],'phy':phy};records.append(current)
         if line.strip().startswith('type ') and current is not None:current['type']=line.strip().split()[1]
-    candidates=[x for x in records if x.get('type')=='managed' and (wifi_interface is None or x['wifi_interface']==wifi_interface)]
+    candidates=[x for x in records if x.get('type') in ('managed','AP') and (wifi_interface is None or x['wifi_interface']==wifi_interface)]
     if len(candidates)!=1: raise RuntimeError('Select one existing Wi-Fi station interface with --wifi-interface; no interface will be created')
     selected=candidates[0]
     radio=run(['/usr/sbin/iw','phy','phy'+str(selected['phy']),'info'])
@@ -53,16 +53,4 @@ def detect(wifi_interface=None):
     if not re.search(r'^\s*\* #\{.*managed.*AP.*<=\s*2|^\s*\* #\{.*AP.*managed.*<=\s*2',radio,re.M):
         # Driver combinations vary in layout; activation still performs authoritative checks.
         if 'valid interface combinations:' not in radio:raise RuntimeError('Driver does not advertise virtual-interface combinations')
-    protected=set();cellular=[]
-    for line in run(['/usr/bin/nmcli','-t','-f','UUID,TYPE,NAME','connection','show']).splitlines():
-        uid,kind,name=line.split(':',2)
-        if not valid_uuid(uid):raise RuntimeError('Invalid NetworkManager inventory')
-        if name=='Hotspot':protected.add(uid)
-    for line in run(['/usr/bin/nmcli','-t','-f','UUID,TYPE,DEVICE','connection','show','--active']).splitlines():
-        uid,kind,device=line.split(':',2)
-        if kind=='gsm' and device=='wwan0mbim0':cellular.append(uid)
-    if len(cellular)>1:raise RuntimeError('Ambiguous cellular profile; existing connections are preserved')
-    cell=cellular[0] if cellular else None
-    if cell:protected.add(cell)
-    return validate({'schema':1,'wifi_interface':selected['wifi_interface'],'phy':selected['phy'],
-                     'cellular_uuid':cell,'protected_uuids':sorted(protected)})
+    return validate({'schema':2,'wifi_interface':selected['wifi_interface'],'phy':selected['phy']})

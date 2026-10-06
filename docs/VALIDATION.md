@@ -1,3 +1,23 @@
+# v0.3.0 candidate acceptance status
+
+Installed live acceptance is pending administrator authentication and an idle AP
+radio. No v0.3.0 release is published until that gate passes. The preceding public
+v0.2.2 release remains unchanged.
+
+Current candidate evidence: 242 hardware-free tests PASS; GTK English/Hebrew matrix
+215 checks PASS; password GUI 33 checks PASS; catalog/static/privacy checks PASS.
+Thirty-one packet-policy checks passed in a disposable user/network namespace,
+including dynamic egress, RFC1918 upstreams, Local IPv4/IPv6/DNS isolation,
+established-flow downgrade and unrelated-interface protection. These are synthetic
+L3 tests, not a physical Wi-Fi client. Staged installation/idempotency/uninstall and
+archive extraction pass. The new installed live run is still required.
+
+Ethernet live validation is NOT_TESTED_NO_ACTIVE_ETHERNET. Wi-Fi live STA+AP is
+BLOCKED_NO_CONNECTED_STA; production Wi-Fi uplink remains UNVALIDATED_DISABLED.
+Physical-client and BeeBEEP acceptance are not claimed by these checks.
+
+---
+
 # Public release validation
 
 The initial public preview is based on the accepted 0.2.0 GTK/NetworkManager

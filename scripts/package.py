@@ -119,11 +119,13 @@ def install(root, system, wifi_interface=None, rebind=False):
         sys.path.insert(0, str(PROJECT / 'scripts'))
         import host_environment
         # Check compatibility on every update; never write global settings.
-        discovered = host_environment.detect(wifi_interface)
+        previous_binding = None
         if receipt and str(BINDING) in receipt['files'] and not rebind:
-            binding_data = checked_path(root, BINDING).read_bytes()
-        else:
-            binding_data = (json.dumps(discovered, sort_keys=True) + '\n').encode()
+            previous_binding=json.loads(checked_path(root,BINDING).read_text())
+        selected=wifi_interface or (previous_binding.get('wifi_interface') if previous_binding else None)
+        discovered = host_environment.detect(selected)
+        # v0.2 bindings migrate automatically: only AP radio identity survives.
+        binding_data = (json.dumps(discovered, sort_keys=True) + '\n').encode()
     old = receipt['files'] if receipt else {}
     binding_path = checked_path(root, BINDING)
     if binding_path.exists() and str(BINDING) not in old:
@@ -143,7 +145,7 @@ def install(root, system, wifi_interface=None, rebind=False):
         payloads[BINDING] = binding_data
     elif receipt and str(BINDING) in receipt['files']:
         payloads[BINDING] = checked_path(root, BINDING).read_bytes()
-    record = {'schema': 1, 'version': '0.2.2', 'files': {}}
+    record = {'schema': 1, 'version': '0.3.0', 'files': {}}
     pending = {}
     for relative, data in payloads.items():
         path = checked_path(root, relative)

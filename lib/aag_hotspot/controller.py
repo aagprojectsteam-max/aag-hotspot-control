@@ -3,6 +3,8 @@ import uuid
 from . import ownership as rb
 from .policy import SSID, ADDRESS, STA
 from .state import owner_for
+from .uplink import Uplink, LOCAL
+from .wifi import Plan, from_dict
 
 
 class Controller:
@@ -27,8 +29,10 @@ class Controller:
                          profile_uuid=owner.profile_uuid, ipv4=ADDRESS)
             value.update(clients=None, client_count=None, client_data_status='UNAVAILABLE')
             if data['phase'] == 'active': value.update(self.b.client_snapshot(owner))
-        try: value['uplink'] = self.b.route_source()
-        except rb.OperationError: pass
+        if data and data['mode']=='local': value.update(LOCAL.status())
+        else:
+            selected=Uplink(**data['uplink_snapshot']) if data and data.get('uplink_snapshot') else self.b.detect_uplink()
+            value.update(selected.status())
         if error: value['health'] = 'ERROR'
         return value
 
@@ -42,7 +46,8 @@ class Controller:
                'resources': {'profile_uuid': str(uuid.uuid4()), 'vif_ifindex': None, 'nft_handle': None},
                'changes': {'wifi_radio_enabled': False, 'sta_autoconnect_disabled': False}}
         data = {'schema': 1, 'ownership': raw, 'phase': 'starting', 'mode': mode,
-                'radio_touched': False, 'auto_touched': False, 'guard_digest': None}
+                'radio_touched': False, 'auto_touched': False, 'guard_digest': None,
+                'uplink_snapshot':None, 'radio_plan':Plan().public()}
         self.owner(data)
         return data
 
@@ -54,8 +59,10 @@ class Controller:
                 raise rb.OperationError('An incomplete session requires off before retrying')
             return self.switch(data, mode)
         password = self.s.password()  # Refuse before changing anything if not configured.
-        self.b.preflight(mode)
+        uplink,plan=self.b.preflight(mode)
         data = self.new_state(mode)
+        data['uplink_snapshot']=uplink.public() if uplink else None
+        data['radio_plan']=plan.public()
         self.b.planned_absent(self.owner(data))
         self.s.save(data)
         owner = self.owner(data)
@@ -67,31 +74,35 @@ class Controller:
             data['guard_digest'] = digest
             self.s.save(data)
             owner = self.owner(data)
-            # Create while radio blocked so no saved profile can auto-connect on the VIF.
-            if self.b.autoconnect():
-                data['auto_touched'] = True
+            # Idle path retains the validated anti-autoconnect sequence. STA+AP
+            # never toggles the radio or upstream device/autoconnect setting.
+            if not plan.sta_interface:
+                if self.b.autoconnect():
+                    data['auto_touched'] = True
+                    self.s.save(data)
+                    self.b.run(['/usr/bin/nmcli', 'device', 'set', STA, 'autoconnect', 'no'])
+                if not self.b.wifi_idle(): raise rb.OperationError('Wi-Fi became active before creation')
+                data['radio_touched'] = True
                 self.s.save(data)
-                self.b.run(['/usr/bin/nmcli', 'device', 'set', STA, 'autoconnect', 'no'])
-            if not self.b.wifi_idle(): raise rb.OperationError('Wi-Fi became active before creation')
-            data['radio_touched'] = True
-            self.s.save(data)
-            if self.b.radio() == 'enabled': self.b.run(['/usr/bin/nmcli', 'radio', 'wifi', 'off'])
+                if self.b.radio() == 'enabled': self.b.run(['/usr/bin/nmcli', 'radio', 'wifi', 'off'])
+            else:self.b.verify_plan(plan)
             data['ownership']['resources']['vif_ifindex'] = self.b.create_interface(owner)
             self.s.save(data)
             owner = self.owner(data)
-            self.b.add_profile(owner, password)
+            self.b.add_profile(owner, password, plan)
             password = None
             rb.Rollback(owner, self.b, emit=lambda _: None).inspect()
-            if mode == 'internet': self.b.cellular()
-            self.b.run(['/usr/bin/nmcli', 'radio', 'wifi', 'on'])
+            if mode == 'internet': self.b.require_uplink(uplink)
+            if not plan.sta_interface:self.b.run(['/usr/bin/nmcli', 'radio', 'wifi', 'on'])
             self.b.wait_device_ready(owner)
             # The wait creates a window for external changes: revalidate ownership
-            # and cellular routing before the single activation request.
+            # and selected routing before the single activation request.
             rb.Rollback(owner, self.b, emit=lambda _: None).inspect()
-            if mode == 'internet': self.b.cellular()
+            if mode == 'internet': self.b.require_uplink(uplink)
+            self.b.verify_plan(plan)
             self.b.activate(owner)
-            _, data['guard_digest'] = self.b.guard(owner, mode)
-            self.b.healthy(owner, mode, data['guard_digest'])
+            _, data['guard_digest'] = self.b.guard(owner, mode, uplink=uplink.interface if uplink else None)
+            self.b.healthy(owner, mode, data['guard_digest'], uplink, plan)
             data['phase'] = 'active'
             self.s.save(data)
             value = self.status(data)
@@ -105,21 +116,20 @@ class Controller:
 
     def switch(self, data, mode):
         owner = self.owner(data)
-        # Local downgrade must work even if the old cellular uplink disappeared.
+        # Local downgrade never inspects or requires an Internet route.
         rb.Rollback(owner, self.b, emit=lambda _: None).inspect()
-        if mode == 'internet': self.b.cellular()
-        if data['mode'] == mode:
-            self.b.healthy(owner, mode, data['guard_digest'])
-            value = self.status(data)
-            self.s.publish(value)
-            return value
+        uplink=self.b.require_uplink() if mode=='internet' else None
+        plan=from_dict(data['radio_plan'])
+        if uplink and uplink.type=='WIFI' and not plan.sta_interface:
+            raise rb.OperationError('WIFI_STA_AP_RESTART_REQUIRED')
         data['phase'] = 'switching'
         self.s.save(data)
         try:
             self.s.publish(self.status(data))
-            _, data['guard_digest'] = self.b.guard(owner, mode)
+            _, data['guard_digest'] = self.b.guard(owner, mode, uplink=uplink.interface if uplink else None)
             data['mode'] = mode
-            self.b.healthy(owner, mode, data['guard_digest'])
+            data['uplink_snapshot']=uplink.public() if uplink else None
+            self.b.healthy(owner, mode, data['guard_digest'], uplink, plan)
             data['phase'] = 'active'
             self.s.save(data)
             value = self.status(data)
@@ -174,7 +184,8 @@ class Controller:
             self.stop()
             return False
         try:
-            self.b.healthy(self.owner(data), data['mode'], data['guard_digest'])
+            self.b.healthy(self.owner(data), data['mode'], data['guard_digest'],
+                           Uplink(**data['uplink_snapshot']) if data['uplink_snapshot'] else None, from_dict(data['radio_plan']))
             self.s.publish(self.status(data))
         except Exception:
             self.stop()

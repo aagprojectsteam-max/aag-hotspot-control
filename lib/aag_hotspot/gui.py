@@ -20,7 +20,11 @@ def presentation(value):
     if value.get('phase') in ('starting', 'switching'): state = _('Updating hotspot…')
     if value.get('phase') == 'stopping': state = _('Turning off hotspot…')
     uplink = value.get('uplink')
-    source = _('FM350 / Cellular') if uplink == 'wwan0' else (_('Wi-Fi (UNVALIDATED)') if uplink and uplink.startswith(('wl', 'wifi')) else _('No connection'))
+    kind=value.get('uplink_type','NONE')
+    source={'CELLULAR':_('Cellular'),'ETHERNET':_('Ethernet'),'WIFI':_('Wi-Fi (UNVALIDATED)'),
+            'NONE_REQUIRED':_('No Internet connection required')}.get(kind,_('No supported connection'))
+    connection=value.get('uplink_connection')
+    if connection and kind in ('CELLULAR','ETHERNET','WIFI'):source += ' · '+connection
     count = value.get('clients')
     if value.get('health') in ('UNKNOWN', 'ERROR', 'NOT_INSTALLED'):
         state, count = _('Hotspot status unavailable'), None
@@ -34,6 +38,8 @@ def error_message(error):
     if 'AUTHENTICATION' in error: return _('Authorization was cancelled or denied. This request did not change your hotspot.')
     if 'WIFI_STA_UNVALIDATED' in error: return _('Your existing Wi-Fi connection was preserved. Wi-Fi uplink sharing is not yet supported.')
     if 'UNSUPPORTED_UPLINK' in error or 'UPLINK_UNSUPPORTED' in error: return _('The current Internet connection cannot be shared safely. You can use local-only mode.')
+    if 'WIFI_DEVICE_BUSY' in error: return _('The Wi-Fi adapter is already in use. Your existing connection was preserved.')
+    if 'UPLINK_CHANGED' in error or 'FORWARD_ROUTE_MISMATCH' in error: return _('The Internet route changed. The hotspot was stopped safely. Try again to use the current connection.')
     if 'CELLULAR_REQUIRED' in error: return _('A supported cellular Internet connection is required. You can use local-only mode instead.')
     if 'CONFIGURATION_REQUIRED' in error: return _('Set a hotspot password first.')
     if 'RFKILL' in error or 'hardware radio is blocked' in error: return _('Wi-Fi is blocked. Check the wireless switch or airplane mode.')
@@ -309,7 +315,7 @@ class Window(Adw.ApplicationWindow):
         off = mode == phase == 'off'
         active = mode in ('internet', 'local') and phase == 'active' and value.get('health') == 'OK'
         self.description.set_label({'off': _('Choose how to use your hotspot.'),
-                                    'internet': _('Share your cellular Internet connection.'),
+                                    'internet': _('Share the current supported Internet connection.'),
                                     'local': _('Connect devices locally without sharing Internet access.')}.get(mode, ''))
         self.status_icon.set_from_icon_name(icon_name(mode))
         if mode == 'internet' and active: self.status_icon.add_css_class('accent')
@@ -318,6 +324,7 @@ class Window(Adw.ApplicationWindow):
         self.info_rows['source'].set_visible(not off)
         self.info_rows['source'].set_title(_('Internet sharing') if mode == 'local' else _('Internet source'))
         if mode == 'local': self.values['source'].set_label(_('No'))
+        self.values['source'].set_tooltip_text(view['source'])
         for action, button in self.buttons.items():
             button.set_visible((action in ('internet', 'local')) if off else action == 'off')
             button.set_sensitive(not self.busy)
@@ -538,7 +545,7 @@ class Window(Adw.ApplicationWindow):
             checks = value.get('checks', {})
             lines = []
             for key, label in [('helper_installed', _('Application installation')), ('password_configured', _('Hotspot password')),
-                               ('cellular_public_route', _('Cellular Internet source'))]:
+                               ('uplink_supported', _('Internet source'))]:
                 lines.append(_('{label}: {result}').format(label=label, result=_('OK') if checks.get(key) else _('Needs attention')))
             if any(checks.get(x) is False for x in ('nmcli', 'iw', 'ip', 'nft', 'dnsmasq', 'pkexec')):
                 lines.append(_('Required system components are missing.'))

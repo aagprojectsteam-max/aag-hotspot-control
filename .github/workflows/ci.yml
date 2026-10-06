@@ -42,7 +42,7 @@ jobs:
       - name: Build and test the extracted release artifact
         run: |
           /usr/bin/python3 scripts/build_release.py
-          /usr/bin/python3 scripts/test_artifact.py dist/aag-hotspot-control-v0.2.2.tar.gz
+          /usr/bin/python3 scripts/test_artifact.py dist/aag-hotspot-control-v0.3.0.tar.gz
           cd dist
           sha256sum --check SHA256SUMS
       - name: Reproducible build

@@ -75,7 +75,7 @@ class ProductionOwner(rb.Ownership):
 
 def owner_for(state, boot_id):
     rb.exact_keys(state, ('schema', 'ownership', 'phase', 'mode', 'radio_touched',
-                          'auto_touched', 'guard_digest'))
+                          'auto_touched', 'guard_digest', 'uplink_snapshot', 'radio_plan'))
     if type(state['schema']) is not int or state['schema'] != 1:
         raise rb.SafetyError('Invalid session schema')
     if state['phase'] not in ('starting', 'switching', 'active', 'stopping') or state['mode'] not in ('local', 'internet'):
@@ -85,6 +85,15 @@ def owner_for(state, boot_id):
     digest = state['guard_digest']
     if digest is not None and (not isinstance(digest, str) or len(digest) != 64 or any(c not in '0123456789abcdef' for c in digest)):
         raise rb.SafetyError('Invalid guard receipt')
+    from .wifi import from_dict
+    from .uplink import Uplink, interface_name
+    try:
+        from_dict(state['radio_plan'])
+        if state['uplink_snapshot'] is not None:
+            uplink=Uplink(**state['uplink_snapshot'])
+            if not interface_name(uplink.interface) or uplink.type not in ('CELLULAR','ETHERNET','WIFI'):
+                raise ValueError()
+    except (ValueError,TypeError):raise rb.SafetyError('Invalid uplink/radio journal') from None
     legacy = rb.validate_manifest(state['ownership'], boot_id)
     if state['auto_touched'] and not legacy.baseline_autoconnect:
         raise rb.SafetyError('Autoconnect journal conflicts with baseline')

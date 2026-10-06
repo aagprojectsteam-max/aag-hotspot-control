@@ -41,6 +41,7 @@ def install(root):
     root=Path(root)
     receipt=pkg.installed_receipt(root)
     if not receipt:raise RuntimeError('Existing production package required')
+    if receipt.get('version')!='0.3.0':raise RuntimeError('Use the full installer for the v0.3.0 architectural upgrade')
     mapping=payloads()
     allowed={Path('usr/lib/aag-hotspot/aag_hotspot')/name for name in UI_MODULES}
     allowed|={Path('usr/share/icons/hicolor/scalable/status')/name for name in ICON_NAMES}
@@ -53,7 +54,7 @@ def install(root):
     # Dependencies first, then the importing views, and the receipt last.
     order=sorted(mapping,key=lambda p:(p.name in ('tray.py','gui.py'),p.name=='gui.py',str(p)))
     data={relative:mapping[relative].read_bytes() for relative in order}
-    updated=json.loads(json.dumps(receipt));updated['version']='0.2.2';pending={}
+    updated=json.loads(json.dumps(receipt));updated['version']='0.3.0';pending={}
     for relative in order:
         updated['files'][str(relative)]={'sha256':hashlib.sha256(data[relative]).hexdigest(),'mode':0o644}
         path=pkg.checked_path(root,relative)

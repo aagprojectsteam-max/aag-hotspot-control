@@ -18,11 +18,13 @@ from aag_hotspot.backend import Backend
 from aag_hotspot.controller import Controller
 from aag_hotspot.state import owner_for, atomic_json
 from aag_hotspot import client, helper
+from aag_hotspot.uplink import Uplink,require_same
+from aag_hotspot.wifi import Plan
 from aag_hotspot.cli import main as cli_main
 
 
 class MemoryStore:
-    boot_id = 'f0000005-0000-4000-8000-000000000005'
+    boot_id = 'f0000003-0000-4000-8000-000000000003'
     def __init__(self): self.data = None; self.public = None; self.history = []
     def load(self): return copy.deepcopy(self.data)
     def save(self, value):
@@ -39,7 +41,7 @@ class MemoryBackend:
     def __init__(self, store):
         self.store = store
         self.p = self.i = self.t = None
-        self.a = {policy.CELL_UUID: ['wwan0mbim0']}
+        self.a = {'f0000001-0000-4000-8000-000000000001': ['wwan0mbim0']}
         self.rv, self.av = 'disabled', True
         self.idle = True
         self.uplink = 'wwan0'
@@ -57,8 +59,8 @@ class MemoryBackend:
         if self.fail == name and self.fault_after:
             self.fail = None
             raise rb.OperationError('injected after ' + name)
-    def profiles(self): return set(rb.PROTECTED_UUIDS)
-    def links(self): return [{'ifname': policy.STA, 'address': '02:00:00:00:10:01'}, {'ifname': 'wwan0'}]
+    def profiles(self): return {'f0000001-0000-4000-8000-000000000001','f0000002-0000-4000-8000-000000000002'}
+    def links(self): return [{'ifname': policy.STA, 'address': '02:00:00:00:00:01'}, {'ifname': 'wwan0'}]
     def radio(self): return self.rv
     def autoconnect(self): return self.av
     def wifi_idle(self): return self.idle
@@ -71,30 +73,40 @@ class MemoryBackend:
     def clients(self, _): return 0
     def client_snapshot(self, _):
         return {'clients': 0, 'client_count': 0, 'client_details': [], 'client_data_status': 'OK'}
-    def cellular(self):
-        if self.uplink != 'wwan0': raise rb.OperationError('CELLULAR_REQUIRED')
+    def detect_uplink(self):
+        return Uplink(interface=self.uplink,type='CELLULAR' if self.uplink=='wwan0' else 'UNSUPPORTED',
+                      nm_device='wwan0mbim0',supported=self.uplink=='wwan0',reason='FIXTURE')
+    def require_uplink(self, expected=None):
+        current=self.detect_uplink()
+        if not current.supported:raise rb.OperationError('UNSUPPORTED_UPLINK')
+        if expected:
+            try:require_same(expected,current)
+            except ValueError as exc:raise rb.OperationError(str(exc))
+        return current
+    def verify_plan(self, plan):pass
     def preflight(self, mode):
         self.event('preflight')
-        if not self.idle: raise rb.OperationError('WIFI_STA_UNVALIDATED')
-        if mode == 'internet': self.cellular()
+        if not self.idle: raise rb.OperationError('WIFI_DEVICE_BUSY')
+        return (self.require_uplink() if mode=='internet' else None),Plan()
     def arm_watch(self): self.event('watch'); self.after('watch')
     def planned_absent(self, _):
         if self.p or self.i or self.t: raise rb.SafetyError('occupied')
-    def guard(self, o, mode, create=False):
+    def guard(self, o, mode, create=False, uplink=None):
         self.event('guard_' + mode)
         if not create and (not self.t or self.t['comment'] != o.marker): raise rb.SafetyError('foreign guard')
-        policy.nft_program(o, mode, create)
+        policy.nft_program(o, mode, create,uplink)
         self.t = {'family': 'inet', 'name': o.table, 'comment': o.marker, 'handle': 88}
         self.digest = {'local': 'a', 'internet': 'b', 'blocked': 'c'}[mode] * 64
         self.after('guard_' + mode)
         return 88, self.digest
     def create_interface(self, o):
         self.event('interface')
-        assert self.rv == 'disabled' and self.store.data['radio_touched']
+        if not self.store.data['radio_plan']['sta_interface']:
+            assert self.rv == 'disabled' and self.store.data['radio_touched']
         self.i = {'name': o.vif, 'mac': o.mac, 'phy': 0, 'mode': 'AP', 'ifindex': 70}
         self.after('interface')
         return 70
-    def add_profile(self, o, password):
+    def add_profile(self, o, password, plan):
         self.event('profile')
         self.p = {'uuid': o.profile_uuid, 'name': o.profile_name, 'type': '802-11-wireless',
                   'interface': o.vif, 'autoconnect': 'no', 'mode': 'ap'}
@@ -107,11 +119,11 @@ class MemoryBackend:
         self.event('readiness')
         assert self.rv == 'enabled' and self.i['name'] == o.vif
         self.after('readiness')
-    def healthy(self, o, mode, digest):
+    def healthy(self, o, mode, digest, uplink=None, plan=None):
         self.event('healthy')
         rb.Rollback(o, self).inspect()
         if self.a.get(o.profile_uuid) != [o.vif] or digest != self.digest: raise rb.OperationError('unhealthy')
-        if mode == 'internet': self.cellular()
+        if mode == 'internet': self.require_uplink(uplink)
         self.after('healthy')
     def remove_lease(self, _): self.event('lease')
     def run(self, argv):
@@ -152,7 +164,7 @@ class ProductionTests(unittest.TestCase):
     def assert_clean(self):
         b = self.backend
         self.assertIsNone(b.p); self.assertIsNone(b.i); self.assertIsNone(b.t)
-        self.assertEqual(b.a, {policy.CELL_UUID: ['wwan0mbim0']})
+        self.assertEqual(b.a, {'f0000001-0000-4000-8000-000000000001': ['wwan0mbim0']})
         self.assertIsNone(self.store.data)
         self.assertEqual(b.rv, 'disabled'); self.assertTrue(b.av)
 
@@ -276,7 +288,7 @@ class ProductionTests(unittest.TestCase):
         self.assertTrue(owner.profile_name.startswith('AAG Hotspot '))
         self.assertTrue(owner.vif.startswith('aaghp'))
         self.assertEqual(owner.table, 'aag_hotspot')
-        data['ownership']['resources']['profile_uuid'] = policy.HOTSPOT_UUID
+        data['ownership']['resources']['profile_uuid'] = 'f0000002-0000-4000-8000-000000000002'
         with self.assertRaises(rb.SafetyError): self.controller.owner(data)
 
     def test_stale_boot_and_extra_schema_keys_refused(self):
@@ -299,7 +311,7 @@ class ProductionTests(unittest.TestCase):
         for name in ('wlan0', 'aaghp12345678; flush ruleset', 'docker0'):
             with self.assertRaises(ValueError): policy.rules(name, 'local')
         for mode in ('local', 'internet', 'blocked'):
-            program = policy.nft_program(self.controller.owner(self.controller.new_state('local')), mode, True)
+            program = policy.nft_program(self.controller.owner(self.controller.new_state('local')), mode, True, 'cell7' if mode=='internet' else None)
             self.assertNotIn('masquerade', program)
             self.assertNotIn('flush ruleset', program)
             self.assertNotIn('delete table', program)

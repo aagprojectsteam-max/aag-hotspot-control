@@ -1,11 +1,13 @@
 # AAG Hotspot Control
 
 A native Ubuntu/GNOME application for turning a Linux laptop into a Wi-Fi hotspot.
-Share an existing cellular Internet connection, create a **local-only LAN without
+Share the current supported Cellular or Ethernet Internet connection, create a **local-only LAN without
 sharing Internet**, or turn the hotspot off. See connected devices without
 switching to a terminal.
 
-**Development for v0.3.0:** English is the default for fresh user profiles; Hebrew
+**v0.3.0 Preview candidate — installed live acceptance pending.**
+
+English is the default for fresh user profiles; Hebrew
 remains fully supported with RTL layout. Select **Settings → Language** to switch
 immediately. The currently published v0.2.2 preview predates this localization update.
 
@@ -15,7 +17,7 @@ replacement for every Linux network manager. Read the requirements before instal
 ## Features
 
 - Native GTK4/Libadwaita GUI with English and Hebrew, stable window size, light/dark themes and a separate devices page.
-- **Hotspot + Internet:** share the existing supported cellular connection through `wwan0`.
+- **Hotspot + Internet:** automatically select the current supported Cellular or Ethernet route.
 - **Local-only Hotspot:** a private LAN with external IPv4 forwarding, IPv6 bypass and recursive DNS blocked.
 - **Off:** deactivate and remove the current AAG-owned hotspot resources.
 - Authenticated password reveal/copy in every mode, with automatic hiding and clipboard expiry.
@@ -44,7 +46,7 @@ They do not imply new physical-client acceptance or show a real device's identit
 The tray image is a native GTK preview of the exported menu model. Actual panel
 appearance and click behavior are controlled by the desktop's indicator host.
 
-## Languages (planned v0.3.0)
+## Languages
 
 - **English — default** for new user profiles, regardless of desktop language.
 - **Hebrew — full RTL support**, with LTR IP/MAC addresses and other technical values.
@@ -78,7 +80,7 @@ The installer checks, without changing networking:
 - GTK4 and Libadwaita 1.8 or newer.
 
 The backend additionally refuses an active/connecting Wi-Fi station, an overlapping
-`10.77.0.0/24` route, occupied AAG resource names or a different Internet route.
+`10.77.0.0/24` route, occupied AAG resource names or an unsupported Internet route.
 **Same-radio Wi-Fi STA + AP uplink is UNVALIDATED and DISABLED.** The program never
 disconnects an existing Wi-Fi connection to make space.
 
@@ -105,8 +107,8 @@ sudo ./install.sh
 
 Installation creates **no hotspot and no autostart**. It installs the GUI, CLI,
 launcher, symbolic tray icons, scoped helper and recovery service definition.
-It records nonsecret hardware/profile bindings locally in a protected installation
-file; no developer connection UUIDs are distributed. Keep the extracted directory
+It records only the selected AP radio interface and wiphy in a protected local
+file. No cellular UUID, provider, or fixed uplink interface is configured. Keep the extracted directory
 for removal and inspection.
 
 If dependencies are missing, install the distribution packages first:
@@ -148,7 +150,7 @@ Opening or refreshing it only reads status.
 
 | GUI control | Meaning |
 | --- | --- |
-| Share Internet / הפעל עם אינטרנט | Start Hotspot + Internet using the bound cellular connection |
+| Share Internet / הפעל עם אינטרנט | Start Hotspot + Internet using the detected supported uplink |
 | Local network only / הפעל מקומי בלבד | Start a local-only hotspot |
 | Turn off hotspot / כבה Hotspot | Turn the active hotspot off |
 | Switch mode / החלף מצב | Switch between Internet and local-only modes |
@@ -170,7 +172,7 @@ use the OFF button or CLI command.
 ### CLI
 
 ```sh
-aag-hotspot internet             # start cellular Internet sharing
+aag-hotspot internet             # share the detected supported Internet uplink
 aag-hotspot local                # start a local-only LAN
 aag-hotspot off                  # stop and clean the owned session
 aag-hotspot status               # current state and connected clients
@@ -180,6 +182,31 @@ aag-hotspot configure            # secure password prompt; no activation
 ```
 
 Additional flags and examples: [CLI reference](docs/CLI.md).
+
+## Automatic Internet uplink
+
+The application asks the kernel which interface carries public IPv4 traffic, then
+uses NetworkManager device and active-connection metadata to classify that path.
+It handles modem control devices that differ from the routed IP interface. UUIDs
+and connection names are status metadata, never eligibility identities.
+
+- **Cellular:** dynamic WWAN/device/provider/profile discovery.
+- **Ethernet:** dynamic physical Ethernet discovery, including private upstream routers.
+- **Wi-Fi:** capability/channel architecture is implemented, but live STA+AP remains
+  **UNVALIDATED_DISABLED**. Advertised interface combinations alone are insufficient.
+- **Local-only:** no Internet, default route, connected uplink or provider is required.
+
+Tailscale, ZeroTier, Docker, bridge, tunnel and AAG AP interfaces cannot be selected
+automatically as Internet uplinks. An unsupported selected route is reported; the
+app does not choose a different default behind your back. If the active sharing
+path changes, supervision stops AAG safely. Start Internet mode again to use the
+new supported path. No upstream connection is established or reconfigured by AAG.
+
+Normal Cellular/Ethernet APs remain 2.4 GHz/channel 6. The gated same-radio Wi-Fi
+planner follows the STA channel and preserves the existing STA; unsupported or
+illegal channels are refused. Do not disconnect a working Wi-Fi connection just
+to bypass these gates. See [architecture](docs/ARCHITECTURE.md) and
+[validation limits](docs/VALIDATION.md).
 
 ## Local-only mode
 
@@ -220,8 +247,9 @@ Closing the main window keeps the tray available when a host is registered.
 Download and verify the next release, turn the hotspot off, extract it and run
 `sudo ./install.sh` from that version. Identical files are skipped; modified/unowned
 installed files cause refusal instead of overwrite. Existing local bindings and
-credentials are preserved. To intentionally bind a changed radio/cellular profile,
-with the intended cellular connection already active and hotspot OFF, run
+credentials are preserved. Old cellular bindings are automatically discarded on
+upgrade. Recreating a cellular profile or changing providers never requires a
+rebind. To intentionally select a changed AP radio, with hotspot OFF, run
 `sudo ./install.sh --rebind`. This reads state; it does not establish connections.
 
 The public package uses a fresh public receipt layout. It is **not** an automatic
@@ -235,7 +263,7 @@ in their receipt. Such installations require a separate reviewed migration.
 | Wi-Fi unavailable or rfkill blocked | Check airplane mode and the physical switch; inspect `rfkill list`. The app will not bypass a block. |
 | AP unsupported / channel unavailable | Inspect `iw list`; the driver must support AP and permit channel 6 in your regulatory domain. |
 | NetworkManager not ready | Run `aag-hotspot doctor`. Activation waits for the exact owned device with a bounded timeout and cleanup on failure. |
-| No Internet uplink | The bound GSM connection must already be active on `wwan0mbim0`, with all IPv4 default routes through `wwan0`. |
+| No Internet uplink | Use doctor to inspect the kernel-selected public route and NM classification. Cellular/Ethernet must already be connected; virtual/VPN routes are rejected without fallback. |
 | New client IP | Reconnect/mode switches may assign another address; use the refreshed devices page. |
 | Client missing | Ensure it is associated with the AAG SSID; a saved lease alone is not association. Wait for a fresh snapshot. |
 | Docker/Tailscale coexistence | Existing ownership is preserved. VPN routes, subnet overlap or another forwarding drop policy can cause refusal or block client Internet; do not flush global rules. |
@@ -289,7 +317,7 @@ reporting vulnerabilities privately and [the threat model](docs/SECURITY-MODEL.m
 
 ## Known limitations
 
-- Only the Ubuntu/NetworkManager/cellular path described above has host-side evidence.
+- v0.3.0 installed host-side acceptance is pending. Ethernet is covered by mocked tests; no live Ethernet evidence is claimed.
 - The new public install-time binding is covered by local mock and staging tests;
   it has not been live-activated on a separate clean machine.
 - Full physical-client Internet, client-to-host/host-to-client and BeeBEEP acceptance

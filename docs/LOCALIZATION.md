@@ -1,6 +1,6 @@
 # Languages and translation
 
-This is the internationalization component for **v0.3.0, unreleased**. The published
+This is the internationalization component for the **v0.3.0 Preview candidate**. The published
 v0.2.2 preview predates it. Uplink architecture and hardware acceptance are separate
 work; adding languages does not enable Wi-Fi STA + AP or change hotspot behavior.
 
@@ -45,18 +45,11 @@ Malformed or unsafe settings fall back to English with a localized notice; the
 application does not overwrite the invalid file automatically. If saving a new
 selection fails, the current language stays selected and the GUI explains the error.
 
-For an existing compatible installation, the development tree includes a scoped
-UI-only updater:
-
-```sh
-sudo /usr/bin/python3 -I scripts/install-ui.py
-```
-
-It verifies the installation receipt and updates only the fixed UI/catalog/icon
-allowlist. Close and reopen the GUI once to load updated program files. Subsequent
-language selections take effect immediately. The updater never activates a hotspot,
-restarts networking, or replaces the backend. Fresh installation uses the normal
-installer, which includes the compiled catalogs.
+For the v0.3.0 architectural upgrade, use the normal full package installer while
+AAG is OFF. It updates the dynamic-uplink backend and GUI together without activation.
+Reopen the GUI once to load updated program files. Subsequent language selections
+take effect immediately. The earlier UI-only updater remains a scoped maintenance
+tool; it is not a substitute for the full architectural upgrade.
 
 ## Translator workflow
 

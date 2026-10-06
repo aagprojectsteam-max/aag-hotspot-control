@@ -10,7 +10,7 @@ from .policy import SSID, SUBNET
 def main(argv=None):
     import resource
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
-    parser = argparse.ArgumentParser(description='AAG Hotspot — cellular-only NetworkManager AP controller')
+    parser = argparse.ArgumentParser(description='AAG Hotspot — dynamic-uplink NetworkManager AP controller')
     parser.add_argument('command', choices=('internet', 'local', 'off', 'status', 'doctor', 'configure'))
     parser.add_argument('--json', action='store_true', help='Machine-readable output; never includes passwords')
     parser.add_argument('--dry-run', action='store_true', help='Describe requested action; do not invoke privilege helper')
@@ -20,7 +20,7 @@ def main(argv=None):
     if args.privileged and args.command != 'doctor': parser.error('--privileged is only valid with doctor')
     if args.dry_run:
         result = {'ok': True, 'dry_run': True, 'action': args.command, 'ssid': SSID, 'subnet': SUBNET,
-                  'uplink_policy': 'wwan0 only; Wi-Fi STA+AP disabled',
+                  'uplink_policy': 'kernel-selected Cellular/Ethernet; Wi-Fi STA+AP unvalidated and disabled',
                   'network_changes': False, 'physical_client_validation': 'NOT_TESTED'}
     elif args.command == 'status': result = client.status()
     elif args.command == 'doctor':

@@ -325,3 +325,24 @@ msgstr[1] "{count} שעות"
 
 msgid "The current Internet connection cannot be shared safely. You can use local-only mode."
 msgstr "לא ניתן לשתף בבטחה את חיבור האינטרנט הנוכחי. אפשר להשתמש במצב מקומי בלבד."
+
+msgid "Cellular"
+msgstr "סלולרי"
+
+msgid "Ethernet"
+msgstr "Ethernet"
+
+msgid "No Internet connection required"
+msgstr "אין צורך בחיבור לאינטרנט"
+
+msgid "No supported connection"
+msgstr "אין חיבור נתמך"
+
+msgid "The Wi-Fi adapter is already in use. Your existing connection was preserved."
+msgstr "מתאם ה־Wi-Fi כבר בשימוש. החיבור הקיים נשמר."
+
+msgid "The Internet route changed. The hotspot was stopped safely. Try again to use the current connection."
+msgstr "מסלול האינטרנט השתנה. הנקודה החמה כובתה בבטחה. ניתן לנסות שוב עם החיבור הנוכחי."
+
+msgid "Share the current supported Internet connection."
+msgstr "שיתוף חיבור האינטרנט הנתמך הנוכחי."

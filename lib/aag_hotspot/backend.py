@@ -6,10 +6,13 @@ import re
 import subprocess
 import time
 from . import ownership as rb
-from .policy import ADDRESS, SUBNET, SSID, CELL_UUID, STA, PHY, SERVICE, nft_program, table_digest
+from .policy import ADDRESS, SUBNET, SSID, STA, PHY, SERVICE, nft_program, table_digest
 
 
 class Backend(rb.Backend):
+    def __init__(self, *, allow_wifi_validation=False):
+        self.allow_wifi_validation = allow_wifi_validation
+
     READINESS_TIMEOUT = 10.0
     READINESS_POLL = 0.25
 
@@ -88,7 +91,7 @@ class Backend(rb.Backend):
         if r.returncode:
             raise rb.OperationError('Atomic AAG firewall transaction failed')
 
-    def guard(self, owner, mode, create=False):
+    def guard(self, owner, mode, create=False, uplink=None):
         existing = self.table(owner)
         if create and existing is not None:
             raise rb.SafetyError('AAG table name is occupied; refusing adoption')
@@ -96,7 +99,7 @@ class Backend(rb.Backend):
             if existing is None or existing.get('comment') != owner.marker or existing.get('handle') != owner.table_handle:
                 raise rb.SafetyError('Guard identity changed; refusing replacement')
             self.verify_chain_layout(owner)
-        self.nft(nft_program(owner, mode, create))
+        self.nft(nft_program(owner, mode, create, uplink))
         return self.table(owner)['handle'], self.guard_digest(owner)
 
     def verify_chain_layout(self, owner):
@@ -113,22 +116,56 @@ class Backend(rb.Backend):
     def guard_digest(self, owner):
         return table_digest(self.run(['/usr/sbin/nft', '-a', 'list', 'table', 'inet', owner.table]))
 
-    def route_source(self):
-        data = self.json_run(['/usr/sbin/ip', '-j', '-4', 'route', 'get', '1.1.1.1'])
-        return data[0].get('dev') if data else None
+    def detect_uplink(self):
+        from .uplink import detect
+        return detect(allow_wifi_validation=self.allow_wifi_validation)
 
-    def cellular(self):
-        defaults = self.json_run(['/usr/sbin/ip', '-j', '-4', 'route', 'show', 'default'])
-        if (self.active().get(CELL_UUID) != ['wwan0mbim0'] or not defaults
-                or any(x.get('dev') != 'wwan0' for x in defaults) or self.route_source() != 'wwan0'):
-            raise rb.OperationError('CELLULAR_REQUIRED: the validated default uplink must be wwan0')
+    def route_source(self): return self.detect_uplink().interface
+
+    def require_uplink(self, expected=None):
+        from .uplink import require_same
+        value=self.detect_uplink()
+        if not value.supported:
+            raise rb.OperationError('UNSUPPORTED_UPLINK: '+value.reason)
+        if expected is not None:
+            try:require_same(expected,value)
+            except ValueError as exc:raise rb.OperationError(str(exc)) from None
+        return value
+
+    def radio_plan(self, uplink=None):
+        from .wifi import plan
+        info=self.run(['/usr/sbin/iw','phy','phy'+str(PHY),'info'])
+        try:
+            if uplink is not None and uplink.type=='WIFI':
+                if not self.allow_wifi_validation:raise ValueError('WIFI_STA_AP_UNVALIDATED')
+                if uplink.interface!=STA:raise ValueError('WIFI_RADIO_MISMATCH')
+                # Only the already-connected station may coexist. Never disconnect it.
+                devices=self.run(['/usr/bin/nmcli','-t','-f','DEVICE,TYPE,STATE','device','status'])
+                for row in devices.splitlines():
+                    name,kind,state=row.split(':',2)
+                    if kind in ('wifi','wifi-p2p') and name!=STA and state not in ('disconnected','unavailable','unmanaged'):
+                        raise ValueError('WIFI_DEVICE_BUSY')
+                return plan(info,sta=STA,sta_info=self.run(['/usr/sbin/iw','dev',STA,'info']),
+                            sta_link=self.run(['/usr/sbin/iw','dev',STA,'link']),phy=PHY,
+                            p2p_devices=sum(row.startswith('p2p-dev-'+STA+':wifi-p2p:') for row in devices.splitlines()))
+            if not self.wifi_idle():raise ValueError('WIFI_DEVICE_BUSY: existing Wi-Fi preserved')
+            return plan(info)
+        except ValueError as exc:raise rb.OperationError(str(exc)) from None
+
+    def verify_plan(self, plan):
+        if plan.sta_interface:
+            from .wifi import station
+            try:
+                phy,freq=station(self.run(['/usr/sbin/iw','dev',plan.sta_interface,'info']),
+                                 self.run(['/usr/sbin/iw','dev',plan.sta_interface,'link']))
+                if phy!=PHY or freq!=plan.sta_frequency:raise ValueError('WIFI_STA_CHANNEL_CHANGED')
+            except ValueError as exc:raise rb.OperationError(str(exc)) from None
+        elif self.run(['/usr/sbin/iw','dev',STA,'link'])!='Not connected.':
+            raise rb.OperationError('WIFI_DEVICE_BUSY: new Wi-Fi connection preserved')
 
     def preflight(self, mode):
         from .binding import READY
-        if not READY:
-            raise rb.OperationError('HOST_BINDING_REQUIRED: install the public package on this host first')
-        if not self.wifi_idle():
-            raise rb.OperationError('WIFI_STA_UNVALIDATED: preserve current Wi-Fi; STA + AP is not enabled')
+        if not READY:raise rb.OperationError('HOST_BINDING_REQUIRED: install the package first')
         if self.run(['/usr/bin/nmcli', '-g', 'WIFI-HW', 'general', 'status']) != 'enabled':
             raise rb.OperationError('Wi-Fi hardware radio is blocked')
         if self.run(['/usr/sbin/sysctl', '-n', 'net.ipv4.ip_forward']) != '1':
@@ -136,11 +173,8 @@ class Backend(rb.Backend):
         config = self.run(['/usr/sbin/NetworkManager', '--print-config'])
         if not re.search(r'^firewall-backend=iptables$', config, re.M):
             raise rb.OperationError('NM firewall backend differs from the validated iptables path')
-        info = self.run(['/usr/sbin/iw', 'phy', 'phy' + str(PHY), 'info'])
-        channel = re.search(r'^\s*\* 2437(?:\.0)? MHz \[6\].*$', info, re.M)
-        if not channel or any(x in channel[0].lower() for x in ('disabled', 'no ir', 'radar')):
-            raise rb.OperationError('Channel 6 is not currently allowed for AP initiation')
-        if mode == 'internet': self.cellular()
+        uplink=self.require_uplink() if mode=='internet' else None
+        plan=self.radio_plan(uplink)
         for route in self.json_run(['/usr/sbin/ip', '-j', '-4', 'route', 'show', 'table', 'all']):
             dst = route.get('dst', 'default')
             if dst != 'default' and ipaddress.ip_network(dst, strict=False).overlaps(ipaddress.ip_network(SUBNET)):
@@ -150,6 +184,7 @@ class Backend(rb.Backend):
             raise rb.SafetyError('Existing aag_hotspot table without a registered session; inspect manually')
         if any(x['ifname'].startswith('aaghp') for x in self.links()):
             raise rb.SafetyError('Possible orphan AAG interface; never adopt or delete by prefix')
+        return uplink,plan
 
     def arm_watch(self):
         # Restart avoids racing a previous completed session's exiting watcher.
@@ -166,7 +201,7 @@ class Backend(rb.Backend):
             if os.path.lexists(path): raise rb.SafetyError('Planned NM runtime file already exists')
 
     def create_interface(self, owner):
-        self.run(['/usr/sbin/iw', 'phy', 'phy' + str(PHY), 'interface', 'add', owner.vif, 'type', '__ap', 'addr', owner.mac])
+        self.run(['/usr/sbin/iw', 'phy', 'phy'+str(PHY), 'interface', 'add', owner.vif, 'type', '__ap', 'addr', owner.mac])
         for _ in range(20):
             devices = self.run(['/usr/bin/nmcli', '-g', 'DEVICE', 'device', 'status']).splitlines()
             if owner.vif in devices:
@@ -175,7 +210,7 @@ class Backend(rb.Backend):
             time.sleep(0.25)
         raise rb.OperationError('NM did not discover the owned interface')
 
-    def add_profile(self, owner, password):
+    def add_profile(self, owner, password, plan):
         from gi.repository import Gio, GLib
         v = GLib.Variant
         settings = {
@@ -183,7 +218,7 @@ class Backend(rb.Backend):
                            'type': v('s', '802-11-wireless'), 'interface-name': v('s', owner.vif),
                            'autoconnect': v('b', False)},
             '802-11-wireless': {'ssid': v('ay', list(SSID.encode())), 'mode': v('s', 'ap'),
-                               'band': v('s', 'bg'), 'channel': v('u', 6),
+                               'band': v('s', plan.band), 'channel': v('u', plan.channel),
                                'assigned-mac-address': v('s', owner.mac), 'ap-isolation': v('i', 0)},
             '802-11-wireless-security': {'key-mgmt': v('s', 'wpa-psk'), 'proto': v('as', ['rsn']),
                                         'pairwise': v('as', ['ccmp']), 'group': v('as', ['ccmp']), 'psk': v('s', password)},
@@ -203,7 +238,7 @@ class Backend(rb.Backend):
     def activate(self, owner):
         self.run(['/usr/bin/nmcli', '--wait', '20', 'connection', 'up', 'uuid', owner.profile_uuid, 'ifname', owner.vif])
 
-    def healthy(self, owner, mode, digest):
+    def healthy(self, owner, mode, digest, uplink=None, plan=None):
         rb.Rollback(owner, self, emit=lambda _: None).inspect()
         if self.active().get(owner.profile_uuid) != [owner.vif]:
             raise rb.OperationError('Owned AP is no longer active')
@@ -211,7 +246,7 @@ class Backend(rb.Backend):
         if not iface or iface['mode'] != 'AP':
             raise rb.OperationError('Kernel AP mode is not confirmed')
         info = self.run(['/usr/sbin/iw', 'dev', owner.vif, 'info'])
-        if '\tssid AAG-Hotspot\n' not in info or 'channel 6 (2437 MHz), width: 20 MHz' not in info:
+        if '\tssid AAG-Hotspot\n' not in info or f'channel {plan.channel} ({plan.frequency} MHz), width: 20 MHz' not in info:
             raise rb.OperationError('SSID/channel/width differs from the validated path')
         addresses = self.json_run(['/usr/sbin/ip', '-j', 'address', 'show', 'dev', owner.vif])[0]['addr_info']
         if not any(x.get('local') == ADDRESS and x.get('prefixlen') == 24 for x in addresses):
@@ -222,9 +257,12 @@ class Backend(rb.Backend):
         if self.guard_digest(owner) != digest:
             raise rb.SafetyError('AAG guard changed unexpectedly')
         self.sharing_infrastructure(owner)
-        if self.run(['/usr/sbin/iw', 'dev', STA, 'link']) != 'Not connected.':
-            raise rb.OperationError('An unvalidated Wi-Fi STA connection appeared')
-        if mode == 'internet': self.cellular()
+        self.verify_plan(plan)
+        if mode == 'internet':
+            self.require_uplink(uplink)
+            from .uplink import Probe,forwarded_path
+            try:forwarded_path(Probe(),uplink.interface,owner.vif)
+            except ValueError as exc:raise rb.OperationError(str(exc)) from None
 
     def sharing_infrastructure(self, owner):
         saved = self.run(['/usr/sbin/iptables-save'])

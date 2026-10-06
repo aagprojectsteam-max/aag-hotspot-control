@@ -44,10 +44,8 @@ requires an actual associated device and must not be inferred from mocked tests.
 
 ## Existing-installation update
 
-After reviewing this release, an existing matching installation can use
-`sudo /usr/bin/python3 -I scripts/install-password-reveal.py` to update only
-`gui.py`, `secret_dialog.py`, `client.py`, `helper.py`, and `__init__.py`, plus its
-installation receipt. The updater verifies existing receipt hashes, rolls files
-back on partial failure, and checks idempotency. It executes no networking command.
-Close and reopen the GUI afterward. Do not copy files manually over a modified
-installation or replace local hardware bindings with another machine's files.
+The v0.3.0 architectural upgrade requires the full `sudo ./install.sh` flow with
+AAG OFF. The former password-reveal/UI-only updaters deliberately refuse upgrading
+a v0.2.x installation, preventing mixed backend dependencies. They remain scoped
+maintenance tools for an already matching v0.3.0 installation. Reopen the GUI once
+to load new code; reveal and language changes never restart networking.

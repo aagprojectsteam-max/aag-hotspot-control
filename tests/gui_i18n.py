@@ -39,12 +39,12 @@ class Transport:
     def state(mode):
         rows=[] if mode=='off' else [dict(mac='02:00:00:00:00:01',hostname='example-tablet',ipv4='10.77.0.15',signal_dbm=-29,connected_seconds=7260)]
         return dict(mode=mode,phase='off' if mode=='off' else 'active',health='OK',configured=True,installed=True,
-                    ssid='AAG-Hotspot',uplink='wwan0',interface=None if mode=='off' else 'aaghp12345678',
+                    ssid='AAG-Hotspot',uplink='cell42',uplink_type='NONE_REQUIRED' if mode=='local' else 'CELLULAR',uplink_connection='Mobile data',interface=None if mode=='off' else 'aaghp12345678',
                     client_count=len(rows),clients=len(rows),client_details=rows,client_data_status='OFF' if mode=='off' else 'OK',clients_updated_monotonic=time.monotonic())
     def status(self):return copy.deepcopy(self.value)
     def request(self,*args):self.calls.append(args);raise AssertionError('Network action forbidden')
     def reveal_password(self):return dict(ok=True,secret=bytearray(b'synthetic-test-password'))
-    def doctor(self):return dict(checks=dict(helper_installed=True,password_configured=True,cellular_public_route=True))
+    def doctor(self):return dict(checks=dict(helper_installed=True,password_configured=True,uplink_supported=True,cellular_public_route=True))
 
 
 def main():

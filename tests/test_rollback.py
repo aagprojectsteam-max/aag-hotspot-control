@@ -16,7 +16,7 @@ BOOT = "f0000005-0000-4000-8000-000000000005"
 
 def manifest():
     return {"schema": 1, "test_id": "f0000002-0000-4000-8000-000000000002", "boot_id": BOOT,
-            "baseline": {"profile_uuids": sorted(rb.PROTECTED_UUIDS),
+            "baseline": {"profile_uuids": ['f0000001-0000-4000-8000-000000000001','f0000002-0000-4000-8000-000000000002'],
                          "interface_names": [rb.STA, "wwan0", "tailscale0", "docker0"],
                          "interface_macs": ["02:00:00:00:10:01"],
                          "wifi_radio": "disabled", "sta_autoconnect": True},
@@ -41,7 +41,7 @@ class FakeBackend:
         self.fail = None
         self.calls = []
         # Unrelated objects must never appear in mutation commands.
-        self.protected = {"profiles": sorted(rb.PROTECTED_UUIDS), "docker": ["docker0", "br-existing"],
+        self.protected = {"profiles": ['f0000001-0000-4000-8000-000000000001','f0000002-0000-4000-8000-000000000002'], "docker": ["docker0", "br-existing"],
                           "tailscale": "tailscale0", "modem": "wwan0", "routes": ["default wwan0"]}
 
     def profile(self, _): return copy.deepcopy(self.p)
@@ -169,7 +169,7 @@ class RollbackSafetyTests(unittest.TestCase):
                 self.assertEqual(b.calls, [])
 
     def test_unrelated_connection_on_vif_is_protected(self):
-        self.backend.a[sorted(rb.PROTECTED_UUIDS)[0]] = [self.owner.vif]
+        self.backend.a['f0000099-0000-4000-8000-000000000099'] = [self.owner.vif]
         with self.assertRaises(rb.SafetyError): self.engine.execute(apply=True)
         self.assertEqual(self.backend.calls, [])
 
@@ -212,7 +212,7 @@ class RollbackSafetyTests(unittest.TestCase):
         self.assertFalse(self.backend.auto_value)
 
     def test_protected_uuids_cannot_be_authorized(self):
-        for uid in rb.PROTECTED_UUIDS:
+        for uid in manifest()['baseline']['profile_uuids']:
             self.data["resources"]["profile_uuid"] = uid
             with self.assertRaises(rb.SafetyError): rb.validate_manifest(self.data, BOOT)
 

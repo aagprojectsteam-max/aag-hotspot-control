@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AAG Hotspot 0.3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-06 15:42+0300\n"
+"POT-Creation-Date: 2026-10-06 16:16+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: AAG Hotspot contributors\n"
 "Language-Team: Translation contributors\n"
@@ -36,13 +36,19 @@ msgstr ""
 msgid "Turning off hotspot…"
 msgstr ""
 
-msgid "FM350 / Cellular"
+msgid "Cellular"
+msgstr ""
+
+msgid "Ethernet"
 msgstr ""
 
 msgid "Wi-Fi (UNVALIDATED)"
 msgstr ""
 
-msgid "No connection"
+msgid "No Internet connection required"
+msgstr ""
+
+msgid "No supported connection"
 msgstr ""
 
 msgid "Hotspot status unavailable"
@@ -67,6 +73,15 @@ msgstr ""
 msgid ""
 "The current Internet connection cannot be shared safely. You can use local-"
 "only mode."
+msgstr ""
+
+msgid ""
+"The Wi-Fi adapter is already in use. Your existing connection was preserved."
+msgstr ""
+
+msgid ""
+"The Internet route changed. The hotspot was stopped safely. Try again to use "
+"the current connection."
 msgstr ""
 
 msgid ""
@@ -186,7 +201,7 @@ msgstr ""
 msgid "Choose how to use your hotspot."
 msgstr ""
 
-msgid "Share your cellular Internet connection."
+msgid "Share the current supported Internet connection."
 msgstr ""
 
 msgid "Connect devices locally without sharing Internet access."
@@ -261,9 +276,6 @@ msgid "Enter 12–63 printable ASCII characters."
 msgstr ""
 
 msgid "Application installation"
-msgstr ""
-
-msgid "Cellular Internet source"
 msgstr ""
 
 #, python-brace-format

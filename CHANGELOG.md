@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 — Unreleased — internationalization component
+## 0.3.0 Preview candidate — installed live validation pending
 
 - English is the default language for fresh user profiles.
 - Hebrew remains available with full RTL layout and LTR technical values.
@@ -12,6 +12,13 @@
   languages without separate GUI implementations.
 - This component does not change uplink detection, firewall policy, CLI machine
   keys, or the current Wi-Fi STA+AP validation boundary.
+
+- Kernel-selected dynamic Cellular/Ethernet uplink classification using NetworkManager metadata.
+- No cellular UUID/provider/device binding; schema-2 installation binds only the AP radio.
+- Dynamic egress guard and RFC1918 upstream support with protected-interface isolation.
+- Local-only operation independent of Internet routes and connected uplinks.
+- Gated STA+AP capability/channel architecture; Wi-Fi remains unvalidated and disabled.
+- Dynamic GUI/status/doctor source reporting, bounded route-change cleanup and expanded tests.
 
 ## 0.2.2 — 2026-10-06 — password reveal
 

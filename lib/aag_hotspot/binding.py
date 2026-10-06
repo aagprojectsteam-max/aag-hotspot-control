@@ -1,6 +1,6 @@
-"""Validated local hardware/profile binding, written only by the installer.
+"""Validated local AP radio binding, written only by the installer.
 
-No secrets, shell expressions, firewall programs or uplink toggles are accepted.
+No connection UUID, uplink identity, secret or execution option is accepted.
 An unbound source checkout can run tests/GUI; real activation fails closed.
 """
 import json
@@ -12,10 +12,7 @@ import uuid
 
 PATH = Path(__file__).resolve().parents[1] / 'host.json'
 # Reserved synthetic values for offline regression fixtures, never real profiles.
-UNBOUND = {'schema': 1, 'wifi_interface': 'wlan0', 'phy': 0,
-           'cellular_uuid': 'f0000001-0000-4000-8000-000000000001',
-           'protected_uuids': ['f0000001-0000-4000-8000-000000000001',
-                               'f0000002-0000-4000-8000-000000000002']}
+UNBOUND = {'schema': 2, 'wifi_interface': 'wlan0', 'phy': 0}
 
 
 def valid_uuid(value):
@@ -24,18 +21,12 @@ def valid_uuid(value):
 
 
 def validate(value):
-    if not isinstance(value, dict) or set(value) != set(UNBOUND) or type(value['schema']) is not int or value['schema'] != 1:
+    if not isinstance(value, dict) or set(value) != set(UNBOUND) or type(value['schema']) is not int or value['schema'] != 2:
         raise ValueError('Invalid host binding schema')
-    if not isinstance(value['wifi_interface'], str) or not re.fullmatch(r'wl[A-Za-z0-9_]{1,13}', value['wifi_interface']):
+    if not isinstance(value['wifi_interface'], str) or not re.fullmatch(r'[A-Za-z0-9_][A-Za-z0-9_.-]{0,14}', value['wifi_interface']):
         raise ValueError('Invalid Wi-Fi interface binding')
     if type(value['phy']) is not int or not 0 <= value['phy'] <= 255:
         raise ValueError('Invalid Wi-Fi physical radio binding')
-    ids = value['protected_uuids']
-    if not isinstance(ids, list) or len(ids) > 2048 or not all(valid_uuid(x) for x in ids) or len(set(ids)) != len(ids):
-        raise ValueError('Invalid protected profile bindings')
-    cell = value['cellular_uuid']
-    if cell is not None and (not valid_uuid(cell) or cell not in ids):
-        raise ValueError('Invalid cellular connection binding')
     return value
 
 
@@ -65,5 +56,5 @@ def load(path=PATH):
 HOST, READY = load()
 STA = HOST['wifi_interface']
 PHY = HOST['phy']
-CELL_UUID = HOST['cellular_uuid']
-PROTECTED_UUIDS = frozenset(HOST['protected_uuids'])
+# All pre-existing profiles are protected by each session's baseline inventory.
+PROTECTED_UUIDS = frozenset()

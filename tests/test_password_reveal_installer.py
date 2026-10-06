@@ -14,7 +14,7 @@ class UIInstallerTests(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
         self.root=Path(self.temp.name)
-        self.receipt={'schema':1,'version':'0.2.0','files':{}}
+        self.receipt={'schema':1,'version':'0.3.0','files':{}}
         for rel in ('usr/lib/aag-hotspot/aag_hotspot/backend.py','usr/lib/aag-hotspot/aag_hotspot/gui.py','usr/lib/aag-hotspot/aag_hotspot/tray.py'):
             path=self.root/rel;path.parent.mkdir(parents=True,exist_ok=True);path.write_text('previous '+rel);path.chmod(0o644)
             self.receipt['files'][rel]={'sha256':u.pkg.digest(path),'mode':0o644}
@@ -25,6 +25,12 @@ class UIInstallerTests(unittest.TestCase):
         result=u.install(self.root);self.assertTrue(result['installed_source_match']);self.assertFalse(result['backend_installed'])
         after=u.inventory(self.root,json.loads(self.manifest.read_text()),set(u.payloads()))
         self.assertEqual(before,after);self.assertEqual(u.install(self.root)['changed_files'],0)
+
+    def test_partial_updater_refuses_architectural_upgrade(self):
+        self.receipt['version']='0.2.2';self.manifest.write_text(json.dumps(self.receipt))
+        with patch.object(u.pkg,'atomic_file') as write:
+            with self.assertRaisesRegex(RuntimeError,'full installer'):u.install(self.root)
+            write.assert_not_called()
 
     def test_scope_cannot_expand_to_backend(self):
         with patch.object(u,'payloads',return_value={Path('usr/lib/aag-hotspot/aag_hotspot/backend.py'):ROOT/'lib/aag_hotspot/backend.py'}):

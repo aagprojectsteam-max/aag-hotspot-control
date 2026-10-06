@@ -6,17 +6,19 @@ SSID = 'AAG-Hotspot'
 SUBNET = '10.77.0.0/24'
 ADDRESS = '10.77.0.1'
 TABLE = 'aag_hotspot'
-from .binding import STA, PHY, CELL_UUID, PROTECTED_UUIDS
-# Compatibility name used by regression fixtures; all baseline profiles are protected.
-HOTSPOT_UUID = next((u for u in sorted(PROTECTED_UUIDS) if u != CELL_UUID), None)
+from .binding import STA, PHY
 SERVICE = 'aag-hotspot-watch.service'
 MODES = ('local', 'internet', 'blocked')
 CHAINS = ('input_guard', 'forward_guard', 'output_guard')
 
 
-def rules(vif, mode):
+def rules(vif, mode, uplink=None):
     if not re.fullmatch(r'aaghp[0-9a-f]{8}', vif) or mode not in MODES:
         raise ValueError('Invalid owned interface or mode')
+    if mode == 'internet':
+        from .uplink import interface_name, excluded_interface
+        if not interface_name(uplink) or excluded_interface(uplink) or uplink == vif:
+            raise ValueError('A validated uplink interface is required')
     i, o = f'iifname "{vif}"', f'oifname "{vif}"'
     ingress = [f'{i} meta nfproto ipv6 counter drop']
     forward = [f'{i} meta nfproto ipv6 counter drop', f'{o} meta nfproto ipv6 counter drop',
@@ -40,9 +42,9 @@ def rules(vif, mode):
                     f'{i} ip daddr 224.0.0.252 udp dport 5355 counter accept']
         forward += [f'{i} {o} ip daddr {SUBNET} counter accept']
         if mode == 'internet':
-            forward += [f'{i} ip daddr {{ 0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 127.0.0.0/8, 169.254.0.0/16, 172.16.0.0/12, 192.168.0.0/16, 224.0.0.0/4, 240.0.0.0/4 }} counter drop',
-                        f'{i} oifname "wwan0" counter accept',
-                        f'iifname "wwan0" {o} ip daddr {SUBNET} ct state established,related counter accept']
+            forward += [f'{i} ip daddr {{ 0.0.0.0/8, 100.64.0.0/10, 127.0.0.0/8, 169.254.0.0/16, 224.0.0.0/4, 240.0.0.0/4 }} counter drop',
+                        f'{i} oifname "{uplink}" counter accept',
+                        f'iifname "{uplink}" {o} ip daddr {SUBNET} ct state established,related counter accept']
     ingress += [f'{i} counter drop']
     forward += [f'{i} counter drop', f'{o} counter drop']
     if mode == 'blocked':
@@ -50,7 +52,7 @@ def rules(vif, mode):
     return dict(zip(CHAINS, (ingress, forward, output)))
 
 
-def nft_program(owner, mode, create=False):
+def nft_program(owner, mode, create=False, uplink=None):
     lines = []
     if create:
         # Values are validated internally; no user-provided nft expressions.
@@ -61,7 +63,7 @@ def nft_program(owner, mode, create=False):
             lines.append(f'add chain inet {TABLE} {chain} {{ type filter hook {hook} priority -10; policy accept; }}')
     else:
         lines += [f'flush chain inet {TABLE} {c}' for c in CHAINS]
-    for chain, entries in rules(owner.vif, mode).items():
+    for chain, entries in rules(owner.vif, mode, uplink).items():
         lines += [f'add rule inet {TABLE} {chain} {entry}' for entry in entries]
     return '\n'.join(lines) + '\n'
 

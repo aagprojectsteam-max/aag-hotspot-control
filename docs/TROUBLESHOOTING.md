@@ -22,13 +22,18 @@ uses ownership-checked cleanup. Do not rename interfaces or start retry loops.
 
 ## Internet mode refused or no client Internet
 
-The supported cellular connection must already be active on `wwan0mbim0`; the
-public/default IPv4 route must be `wwan0`. A changed cellular connection UUID needs
-an explicit OFF/install `--rebind`. The app does not connect/reconfigure the modem.
-VPN default routing, CGNAT/private destinations, subnet conflicts, client firewall
-or another host firewall's forwarding drops can explain blocked traffic. AAG does
-not override Docker/Tailscale or other owners' rules. External-client validation
-is separate from DHCP/NAT infrastructure checks.
+Inspect `UPLINK_TYPE`, `UPLINK_INTERFACE`, `UPLINK_DEVICE`, `UPLINK_SUPPORTED` and
+`UPLINK_REASON` in status, and the selected public route in doctor. Cellular and
+physical Ethernet are selected dynamically; no rebind is needed after a cellular
+UUID/provider change. The app never connects or configures the modem itself.
+
+An unsupported VPN/virtual selected route, split public paths, subnet conflict,
+client firewall or another owner's forwarding drop can prevent sharing. No silent
+fallback or global firewall repair is attempted. Private upstream router addresses
+are supported on the selected physical uplink. A changed active route causes safe
+AAG shutdown; start Internet mode again to select the new path. Local-only needs no
+Internet route or connected uplink. Physical-client traffic remains a separate
+acceptance test from host DHCP/NAT infrastructure.
 
 ## Missing client or changed address
 

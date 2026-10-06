@@ -42,11 +42,11 @@ class BindingTests(unittest.TestCase):
             with self.subTest(key=key),self.assertRaises(ValueError):binding.validate(data)
 
     def test_local_only_binding_accepts_no_cellular(self):
-        data=copy.deepcopy(binding.UNBOUND);data['cellular_uuid']=None;data['protected_uuids']=[]
+        data=copy.deepcopy(binding.UNBOUND)
         self.assertIs(binding.validate(data),data)
 
-    def test_cellular_must_be_protected(self):
-        data=copy.deepcopy(binding.UNBOUND);data['protected_uuids']=[]
+    def test_legacy_cellular_identity_no_longer_accepted(self):
+        data=copy.deepcopy(binding.UNBOUND);data['cellular_uuid']=CELL
         with self.assertRaises(ValueError):binding.validate(data)
 
 
@@ -70,11 +70,11 @@ class EnvironmentTests(unittest.TestCase):
 
     def test_bind_existing_local_identifiers_without_mutation(self):
         value=environment.detect()
-        self.assertEqual(value,{'schema':1,'wifi_interface':'wlan1','phy':2,'cellular_uuid':CELL,'protected_uuids':[CELL,SAVED]})
+        self.assertEqual(value,{'schema':2,'wifi_interface':'wlan1','phy':2})
         self.assertFalse(any(word in args for args in self.commands for word in ('up','down','modify','add','delete','set','restart')))
 
     def test_no_cellular_connection_keeps_local_option(self):
-        self.no_cell=True;value=environment.detect();self.assertIsNone(value['cellular_uuid']);self.assertEqual(value['protected_uuids'],[SAVED])
+        self.no_cell=True;value=environment.detect();self.assertEqual(set(value),{'schema','wifi_interface','phy'})
 
     def test_ambiguous_wifi_requires_explicit_existing_selection(self):
         self.devices+='\nphy#3\n Interface wlan2\n  type managed'
@@ -107,6 +107,21 @@ class EnvironmentTests(unittest.TestCase):
 
 
 class PublicPackageTests(unittest.TestCase):
+    def test_upgrade_discards_legacy_uplink_binding_and_preserves_radio(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);package.install(root,False)
+            legacy={'schema':1,'wifi_interface':'wlan7','phy':2,'cellular_uuid':CELL,'protected_uuids':[CELL,SAVED]}
+            path=root/package.BINDING;path.write_text(json.dumps(legacy));path.chmod(0o644)
+            receipt=json.loads((root/package.MANIFEST).read_text())
+            receipt['files'][str(package.BINDING)]={'sha256':package.digest(path),'mode':0o644}
+            (root/package.MANIFEST).write_text(json.dumps(receipt))
+            modern={'schema':2,'wifi_interface':'wlan7','phy':2}
+            with patch.object(package,'inactive'),patch.object(package,'refresh'),patch.object(environment,'detect',return_value=modern) as detect:
+                result=package.install(root,True)
+                self.assertFalse(result['activation']);detect.assert_called_once_with('wlan7')
+                self.assertEqual(json.loads(path.read_text()),modern)
+                self.assertEqual(package.install(root,True)['changed_files'],0)
+
     def test_public_payload_excludes_reports_and_local_binding(self):
         files=package.source_map()
         self.assertNotIn(package.BINDING,files)

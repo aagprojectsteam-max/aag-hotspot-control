@@ -68,7 +68,7 @@ class DeviceReadinessTests(unittest.TestCase):
     def assert_clean(self, radio='disabled'):
         self.assertIsNone(self.store.data)
         self.assertIsNone(self.memory.p); self.assertIsNone(self.memory.i); self.assertIsNone(self.memory.t)
-        self.assertEqual(self.memory.a, {policy.CELL_UUID: ['wwan0mbim0']})
+        self.assertEqual(self.memory.a, {'f0000001-0000-4000-8000-000000000001': ['wwan0mbim0']})
         self.assertEqual(self.memory.rv, radio); self.assertTrue(self.memory.av)
 
     def test_immediately_ready_returns_without_delay_or_writes(self):
@@ -195,7 +195,7 @@ class DeviceReadinessTests(unittest.TestCase):
             value = nm.run(*args, **kwargs)
             if len(nm.calls) == 3: self.memory.uplink = 'tailscale0'
             return value
-        with patch('aag_hotspot.backend.subprocess.run', probe), self.assertRaisesRegex(rb.OperationError, 'CELLULAR_REQUIRED'):
+        with patch('aag_hotspot.backend.subprocess.run', probe), self.assertRaisesRegex(rb.OperationError, 'UNSUPPORTED_UPLINK'):
             self.controller.start('internet')
         self.assertNotIn('activate', self.memory.calls)
         self.assert_clean()

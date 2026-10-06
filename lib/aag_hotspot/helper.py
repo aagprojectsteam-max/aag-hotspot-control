@@ -55,13 +55,16 @@ def main(argv=None):
             # Read-only, does not construct runtime state or start the supervisor.
             checks = {'firewall_readable': bool(backend.json_run(['/usr/sbin/nft', '-j', 'list', 'tables'])),
                       'wifi_idle': backend.wifi_idle(), 'public_route': backend.route_source(),
-                      'configured': store.configured()}
+                      'configured': store.configured(), 'uplink':backend.detect_uplink().public()}
             with store.locked(create=False) as present:
                 data = store.load() if present else None
                 if data:
                     controller = Controller(backend, store)
                     if data['phase'] == 'active':
-                        backend.healthy(controller.owner(data), data['mode'], data['guard_digest'])
+                        from .uplink import Uplink
+                        from .wifi import from_dict
+                        backend.healthy(controller.owner(data), data['mode'], data['guard_digest'],
+                                        Uplink(**data['uplink_snapshot']) if data['uplink_snapshot'] else None,from_dict(data['radio_plan']))
                     checks['phase'] = data['phase']
                 else: checks['phase'] = 'off'
             result = {'ok': True, 'checks': checks, 'physical_client_validation': 'NOT_TESTED'}

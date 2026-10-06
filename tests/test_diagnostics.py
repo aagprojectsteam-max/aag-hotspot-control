@@ -49,8 +49,10 @@ class DiagnosticTests(unittest.TestCase):
 
     def test_unexpected_route_shape_reports_no_uplink(self):
         for route in ('null', '{}', '[null]', '[1]', '[]', 'malformed'):
+            from aag_hotspot.uplink import Probe
+            def response(*args,**kwargs):return json.loads(route)
             with self.subTest(route=route), patch.object(Path, 'lstat', side_effect=FileNotFoundError), patch.object(
-                    client, 'probe', return_value={'ok': True, 'stdout': route}):
+                    Probe, 'route', side_effect=response):
                 self.assertIsNone(client.status()['uplink'])
 
     def test_stale_gui_status_does_not_claim_active_or_invent_clients(self):

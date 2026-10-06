@@ -43,6 +43,7 @@ def install(root):
     root=Path(root)
     receipt=pkg.installed_receipt(root)
     if not receipt:raise RuntimeError('Existing production package required')
+    if receipt.get('version')!='0.3.0':raise RuntimeError('Use the full installer for the v0.3.0 architectural upgrade')
     mapping=payloads()
     allowed={Path('usr/lib/aag-hotspot/aag_hotspot')/name for name in UI_MODULES}
     allowed|={Path('usr/share/icons/hicolor/scalable/status')/name for name in ICON_NAMES}
