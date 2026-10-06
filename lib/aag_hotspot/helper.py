@@ -2,6 +2,7 @@
 import json
 import os
 import signal
+import stat
 import sys
 import time
 from . import ownership as rb
@@ -9,7 +10,25 @@ from .backend import Backend
 from .controller import Controller
 from .state import Store, LOCK_WAIT, RECOVERY_LOCK_WAIT
 
-ACTIONS = ('internet', 'local', 'off', 'configure', 'doctor')
+ACTIONS = ('internet', 'local', 'off', 'configure', 'doctor', 'reveal-password')
+
+
+def reveal_password():
+    """Read only the fixed protected credential; never construct a backend.
+
+    Refuse terminals and files: the secret response belongs only in the GUI's
+    anonymous pipe, never an interactive command's output or redirected log.
+    All failures deliberately discard exception bodies (including bad JSON).
+    """
+    try:
+        if not stat.S_ISFIFO(os.fstat(sys.stdout.fileno()).st_mode):
+            return 1
+        password = Store().password()
+        sys.stdout.write(password)
+        sys.stdout.flush()
+        return 0
+    except Exception:
+        return 1
 
 
 def deadline(signum, frame):
@@ -29,6 +48,8 @@ def main(argv=None):
     signal.signal(signal.SIGALRM, deadline)
     signal.alarm(120)
     try:
+        if action == 'reveal-password':
+            return reveal_password()
         store, backend = Store(), Backend()
         if action == 'doctor':
             # Read-only, does not construct runtime state or start the supervisor.

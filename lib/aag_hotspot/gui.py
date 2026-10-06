@@ -10,6 +10,7 @@ from . import client
 from .policy import validate_password
 from .clients import expire, hostname, ipv4_address, mac_address
 from .ui_support import Geometry, DEFAULT_SIZE, MIN_SIZE, duration_label, icon_directory, icon_name
+from .secret_dialog import SecretDialog
 
 
 def presentation(value):
@@ -53,6 +54,7 @@ class Window(Adw.ApplicationWindow):
         if size['maximized']: self.maximize()
         self.transport, self.pool = transport, ThreadPoolExecutor(max_workers=1)
         self.busy, self.refreshing, self.closed = False, False, False
+        self.reveal_pending, self.reveal_generation, self.secret_view = False, 0, None
         self.current = {'configured': False}
         self.connect('close-request', self.on_close)
         self.set_direction(Gtk.TextDirection.RTL)
@@ -60,6 +62,7 @@ class Window(Adw.ApplicationWindow):
         self.navigation = Adw.NavigationView()
         self.actions = {}
         callbacks = {'refresh': self.refresh, 'password': self.password_dialog, 'diagnose': self.diagnose,
+                     'reveal-password': self.reveal_password,
                      'about': self.about, 'clients': self.show_clients,
                      'mode-internet': lambda: self.activate_mode('internet'),
                      'mode-local': lambda: self.activate_mode('local'),
@@ -69,6 +72,7 @@ class Window(Adw.ApplicationWindow):
             action.connect('activate', lambda _a, _p, fn=callback: fn())
             self.add_action(action); self.actions[name] = action
         self.menu_model = Gio.Menu()
+        self.menu_model.append('הצג סיסמה', 'win.reveal-password')
         self.menu_model.append('סיסמת הרשת…', 'win.password')
         self.menu_model.append('אבחון', 'win.diagnose')
         self.menu_model.append('רענן', 'win.refresh')
@@ -138,6 +142,10 @@ class Window(Adw.ApplicationWindow):
             self.values[key], self.info_rows[key] = value, row
             self.info_group.add(row)
         content.append(self.info_group)
+        self.reveal_button = Gtk.Button(label='הצג סיסמה', halign=Gtk.Align.END)
+        self.reveal_button.add_css_class('flat')
+        self.reveal_button.set_action_name('win.reveal-password')
+        content.append(self.reveal_button)
         controls = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
         self.buttons = {}
         for action, label, style in [('internet', 'הפעל עם אינטרנט', 'suggested-action'),
@@ -178,6 +186,7 @@ class Window(Adw.ApplicationWindow):
             self.geometry.save(width, height, self.is_maximized())
 
     def on_close(self, *_):
+        self.clear_secret()
         self.save_geometry()
         app = self.get_application()
         if getattr(app, 'tray', None) is not None and app.tray.registered and not getattr(app, 'exiting', False):
@@ -188,6 +197,7 @@ class Window(Adw.ApplicationWindow):
 
     def dispose_view(self):
         if self.closed: return
+        self.clear_secret()
         self.save_geometry()
         self.closed = True
         GLib.source_remove(self.timer)
@@ -236,6 +246,8 @@ class Window(Adw.ApplicationWindow):
         self.switch_mode.set_sensitive(not self.busy)
         for name, action in self.actions.items():
             action.set_enabled(not self.busy and (name != 'password' or self.current.get('phase', 'off') == 'off'))
+        self.actions['reveal-password'].set_enabled(not self.busy and not self.reveal_pending
+                                                   and bool(self.current.get('configured')))
         tray = getattr(self.get_application(), 'tray', None)
         if tray is not None: tray.update(self.current, self.busy)
 
@@ -312,6 +324,7 @@ class Window(Adw.ApplicationWindow):
         self.request(action)
 
     def request(self, action, password=None, after=None):
+        self.clear_secret()
         self.busy = True
         if action in ('internet', 'local', 'off'):
             self.current.update(clients=None, client_count=None, client_details=[], client_data_status='UNAVAILABLE')
@@ -332,6 +345,48 @@ class Window(Adw.ApplicationWindow):
             else:
                 self.notice.set_label(error_message(result.get('error', 'REQUEST_FAILED'))); self.notice.set_visible(True)
         self.dispatch(lambda: self.transport.request(action, password), done)
+
+    def clear_secret(self):
+        self.reveal_generation += 1
+        if self.secret_view is not None:
+            self.secret_view.clear()
+            self.secret_view.close()
+            self.secret_view = None
+
+    def reveal_password(self):
+        if self.busy or self.reveal_pending or self.closed: return
+        if self.secret_view is not None and not self.secret_view.cleared:
+            self.secret_view.present(self)
+            return
+        self.reveal_pending = True
+        generation = self.reveal_generation
+        self.update_tray()
+        # Dedicated delivery: consume and wipe the secret even if the window
+        # closes during Polkit. Never hand secret replies to render/diagnostics.
+        future = self.pool.submit(self.transport.reveal_password)
+        def complete(f):
+            try: result = f.result()
+            except Exception: result = {'ok': False}
+            secret = result.pop('secret', bytearray())
+            authorized = result.get('ok') and bool(secret)
+            auth_denied = result.get('error') == 'AUTHENTICATION_CANCELLED_OR_DENIED'
+            def deliver():
+                try:
+                    self.reveal_pending = False
+                    if self.closed or generation != self.reveal_generation: return False
+                    self.update_tray()
+                    if authorized:
+                        self.secret_view = SecretDialog(secret, self.get_clipboard())
+                        self.secret_view.present(self)
+                    else:
+                        self.notice.set_label('האימות בוטל או לא אושר. מצב הרשת לא השתנה.' if auth_denied
+                                              else 'לא ניתן לקרוא את הסיסמה המאובטחת. מצב הרשת לא השתנה.')
+                        self.notice.set_visible(True)
+                finally:
+                    secret[:] = b'\0' * len(secret)
+                return False
+            GLib.idle_add(deliver)
+        future.add_done_callback(complete)
 
     def password_dialog(self, after=None):
         if self.busy: return

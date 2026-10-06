@@ -5,7 +5,7 @@ Share an existing cellular Internet connection, create a **local-only LAN withou
 sharing Internet**, or turn the hotspot off. See connected devices without
 switching to a terminal.
 
-**Current public preview: v0.2.1.** The GUI is currently **Hebrew RTL only**; there is
+**Current public preview: v0.2.2.** The GUI is currently **Hebrew RTL only**; there is
 no English GUI yet. This is a conservative, hardware-dependent tool, not a universal
 replacement for every Linux network manager. Read the requirements before installing.
 
@@ -15,6 +15,7 @@ replacement for every Linux network manager. Read the requirements before instal
 - **Hotspot + Internet:** share the existing supported cellular connection through `wwan0`.
 - **Local-only Hotspot:** a private LAN with external IPv4 forwarding, IPv6 bypass and recursive DNS blocked.
 - **Off:** deactivate and remove the current AAG-owned hotspot resources.
+- Authenticated password reveal/copy in every mode, with automatic hiding and clipboard expiry.
 - Connected-client name, IPv4, MAC, signal strength, connection duration and copy-IP action.
 - Minimal symbolic tray indicator with mode/count tooltip and a quick OFF action.
 - NetworkManager shared-mode DHCP/DNS and NAT, with an explicitly scoped nftables guard.
@@ -65,9 +66,9 @@ to make an incompatible machine pass. See [compatibility](docs/COMPATIBILITY.md)
 
 ## Installation
 
-Download these files from the [v0.2.1 release](https://github.com/aagprojectsteam-max/aag-hotspot-control/releases/tag/v0.2.1):
+Download these files from the [v0.2.2 release](https://github.com/aagprojectsteam-max/aag-hotspot-control/releases/tag/v0.2.2):
 
-- `aag-hotspot-control-v0.2.1.tar.gz`
+- `aag-hotspot-control-v0.2.2.tar.gz`
 - `SHA256SUMS`
 - `release-manifest.json`
 
@@ -75,8 +76,8 @@ Place them in the same directory, then:
 
 ```sh
 sha256sum --check SHA256SUMS
-tar -xzf aag-hotspot-control-v0.2.1.tar.gz
-cd aag-hotspot-control-v0.2.1
+tar -xzf aag-hotspot-control-v0.2.2.tar.gz
+cd aag-hotspot-control-v0.2.2
 sudo ./install.sh
 ```
 
@@ -130,13 +131,15 @@ Opening or refreshing it only reads status.
 | כבה Hotspot | Turn the active hotspot off |
 | החלף מצב | Switch between Internet and local-only modes |
 | מכשירים מחוברים | Open the connected-device page |
+| הצג סיסמה | Authorize, reveal or copy the password in any mode |
 | סיסמת הרשת… | Configure the password securely, while OFF |
 
 SSID: **AAG-Hotspot**. Host address: **10.77.0.1/24**. Band/channel: **2.4 GHz / 6**.
 Use the password menu before first activation, or `aag-hotspot configure` for a
 secure terminal prompt. Passwords must be 12–63 printable ASCII characters.
 They are stored root-owned with mode 0600 and are never returned by status/doctor,
-tray or diagnostics. There is no stored-password reveal API.
+tray or diagnostics. An explicit authenticated GUI action can reveal/copy the stored
+password without reconnecting the hotspot; see [password reveal](docs/PASSWORD_REVEAL.md).
 
 Administrator authentication is requested for explicit privileged operations.
 Do not run the GUI as root. Closing the GUI does not turn off a running hotspot;
@@ -270,7 +273,7 @@ reporting vulnerabilities privately and [the threat model](docs/SECURITY-MODEL.m
 - Full physical-client Internet, client-to-host/host-to-client and BeeBEEP acceptance
   remain **NOT_TESTED**. Screenshots use fixtures.
 - Same-radio Wi-Fi STA + AP uplink remains **UNVALIDATED_DISABLED**.
-- No English GUI, stored-password reveal, arbitrary uplink selection, subnet/channel
+- No English GUI, arbitrary uplink selection, subnet/channel
   editor or general host-service exposure is provided.
 - This first public release is a **preview**, not a universal hardware compatibility promise.
 

@@ -44,7 +44,7 @@ Associated stations come from `iw station dump`; DHCP leases provide IPv4/hostna
 
 ## Credentials
 
-The SSID is `AAG-Hotspot`, host address `10.77.0.1/24`, currently 2.4 GHz channel 6. Passwords are configured through a secure prompt/menu, stored root-owned mode 0600, and never returned by status, doctor, tray or diagnostics. There is intentionally no stored-password reveal API.
+The SSID is `AAG-Hotspot`, host address `10.77.0.1/24`, currently 2.4 GHz channel 6. Passwords are configured through a secure prompt/menu, stored root-owned mode 0600, and never returned by status, doctor, tray or diagnostics. Version 0.2.2 adds explicit authenticated GUI reveal/copy through the fixed helper; the short-lived dialog does not restart the hotspot. See PASSWORD_REVEAL.md for expiry and clipboard limitations.
 
 ## Installation/update/removal
 
@@ -62,7 +62,7 @@ The public validation intentionally did **not** activate a real hotspot during p
 
 ## Release state
 
-Current public preview is **v0.2.1**. The release is intentionally labeled preview because the public binding/package path has strong mock/staging evidence but does not add a fresh separate-machine physical-client acceptance.
+Current public preview is **v0.2.2**. The release is intentionally labeled preview because the public binding/package path has strong mock/staging evidence but does not add a fresh separate-machine physical-client acceptance.
 
 ## Repository map
 

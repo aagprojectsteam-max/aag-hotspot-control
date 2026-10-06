@@ -28,6 +28,12 @@ def findings(data, name):
     if len(data)>2*1024*1024:problems.append('large_file')
     if any(part in ('credentials.json','host.json','.env') or part.endswith(('.pem','.key','.nmconnection','.secret')) for part in Path(name).parts):problems.append('private_file')
     if b'\0' in data:return problems
+    # The upstream history includes its explicitly public project identity in
+    # an older version of this scanner. Exempt only that known identity in this
+    # exact source path; all other patterns/content/paths remain checked.
+    if name == 'scripts/privacy_scan.py':
+        for email in PUBLIC_COMMIT_EMAILS:
+            data=data.replace(email,b'public-project-identity@users.noreply.github.com')
     value=data.decode('utf-8','replace')
     problems += [key for key,rx in RULES.items() if rx.search(value.replace('100.64.0.0/10', 'CGNAT_NETWORK'))]
     if any(not re.fullmatch(r'f[0-9a-f]{7}-0000-4000-8000-[0-9a-f]{12}',x) for x in UUID.findall(value)):problems.append('non_fixture_uuid')

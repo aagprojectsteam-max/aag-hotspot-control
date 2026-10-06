@@ -101,3 +101,24 @@ def request(action, password=None):
         return value
     except ValueError:
         return {'ok': False, 'error': 'HELPER_PROTOCOL_ERROR'}
+
+
+def reveal_password():
+    """Explicit authenticated GUI-only read; never a status/request payload.
+
+    The caller must consume and wipe the returned bytearray even if its window
+    closed while authentication was pending. No subprocess output is logged.
+    """
+    try:
+        r = subprocess.run(['/usr/bin/pkexec', HELPER, 'reveal-password'],
+                           stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                           stderr=subprocess.DEVNULL, timeout=120)
+        if r.returncode in (126, 127):
+            return {'ok': False, 'error': 'AUTHENTICATION_CANCELLED_OR_DENIED'}
+        if r.returncode != 0:
+            return {'ok': False, 'error': 'SECRET_UNAVAILABLE'}
+        validate_password(r.stdout.decode('ascii'))
+        return {'ok': True, 'secret': bytearray(r.stdout)}
+    except Exception:
+        # Never propagate an exception which may contain a response or secret.
+        return {'ok': False, 'error': 'SECRET_UNAVAILABLE'}

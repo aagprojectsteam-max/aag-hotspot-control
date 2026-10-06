@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.2 — 2026-10-06 — password reveal
+
+- Add an explicit Hebrew password-reveal action beside network information in OFF, Internet and Local modes.
+- Read credentials through the fixed authenticated helper without invoking networking or restarting the hotspot.
+- Start masked; hide visible text and clear the owned clipboard after 30 seconds; close and clear the dialog after 60 seconds.
+- Preserve root-owned 0600 credentials, unprivileged GUI, status/doctor output and the existing network controller.
+- Add secret-safe failure tests, real GTK/clipboard checks and a narrowly scoped transactional updater.
+
 ## 0.2.1 — 2026-09-14 — public preview correction
 
 - Require administrator execution for system compatibility inspection because

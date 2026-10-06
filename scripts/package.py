@@ -141,7 +141,7 @@ def install(root, system, wifi_interface=None, rebind=False):
         payloads[BINDING] = binding_data
     elif receipt and str(BINDING) in receipt['files']:
         payloads[BINDING] = checked_path(root, BINDING).read_bytes()
-    record = {'schema': 1, 'version': '0.2.1', 'files': {}}
+    record = {'schema': 1, 'version': '0.2.2', 'files': {}}
     pending = {}
     for relative, data in payloads.items():
         path = checked_path(root, relative)

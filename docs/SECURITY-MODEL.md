@@ -8,8 +8,11 @@ Polkit bypass is installed.
 
 Password setup uses masked entry/secure terminal input and helper stdin. Passwords
 are absent from command arguments, public status, diagnostics, tray and logs.
-Neither status nor the GUI offers stored-secret retrieval. Never share credential
-files or saved NetworkManager profiles.
+Only the explicit GUI reveal action requests the stored secret through the fixed
+authenticated helper and a private pipe. Status/doctor never requests it. The
+short-lived dialog and owned clipboard expire automatically; see
+[password reveal](PASSWORD_REVEAL.md) for details and clipboard-manager limits.
+Never share credential files or saved NetworkManager profiles.
 
 AAG's only firewall table is `inet aag_hotspot`, with a per-session ownership marker
 and verified table/chain receipts. It does not flush the global ruleset or modify
