@@ -1,7 +1,9 @@
 # v0.3.0 Preview candidate — dynamic uplink and languages
 
-Publication is gated on completed installed live validation. No v0.3.0 tag or release
-has been published by this candidate work yet.
+Host-side installed live validation passed for Local-only and dynamically detected
+Cellular Internet on the documented Ubuntu 26.04 system. This release remains a
+preview because Ethernet has no live hardware acceptance, same-radio Wi-Fi STA+AP
+remains disabled, and physical-client/BeeBEEP acceptance is still pending.
 
 - Kernel-route-selected Cellular and physical Ethernet, classified through authoritative
   NetworkManager metadata. No cellular UUID, provider or fixed WWAN device requirement.
@@ -17,6 +19,8 @@ has been published by this candidate work yet.
 - Scoped password reveal/copy, connected-device visibility, minimal tray and the
   existing readiness/ownership/cleanup protections are preserved.
 
-Live Ethernet and physical-client acceptance are not claimed by mocked or isolated
-network-namespace tests. The current installed/live result and any blockers must be
-recorded before this candidate becomes a public preview release.
+The final live run verified Local-only and Cellular Internet activation, DHCP/DNS/NAT
+infrastructure, dynamic guard policy, password reveal/copy, English/Hebrew switching
+while active, mode transitions, final OFF cleanup, and protected-state restoration.
+No client was associated during that run. Live Ethernet, physical-client/BeeBEEP,
+and Wi-Fi STA+AP acceptance are therefore not claimed.

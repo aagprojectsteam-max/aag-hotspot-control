@@ -1,8 +1,8 @@
 # Languages and translation
 
-This is the internationalization component for the **v0.3.0 Preview candidate**. The published
-v0.2.2 preview predates it. Uplink architecture and hardware acceptance are separate
-work; adding languages does not enable Wi-Fi STA + AP or change hotspot behavior.
+English/Hebrew internationalization ships in **v0.3.0 Preview**. English is the default
+for fresh users and Hebrew remains fully supported with RTL. Language switching does
+not enable Wi-Fi STA+AP or change hotspot policy.
 
 ## Choose a language
 

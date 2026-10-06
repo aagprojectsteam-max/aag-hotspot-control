@@ -5,11 +5,11 @@ Share the current supported Cellular or Ethernet Internet connection, create a *
 sharing Internet**, or turn the hotspot off. See connected devices without
 switching to a terminal.
 
-**v0.3.0 Preview candidate — installed live acceptance pending.**
+**v0.3.0 Preview — host-side live acceptance passed for Local-only and dynamic Cellular Internet.**
 
 English is the default for fresh user profiles; Hebrew
 remains fully supported with RTL layout. Select **Settings → Language** to switch
-immediately. The currently published v0.2.2 preview predates this localization update.
+immediately. Language switching was also exercised while the hotspot was active.
 
 This is a conservative, hardware-dependent tool, not a universal
 replacement for every Linux network manager. Read the requirements before installing.
@@ -90,9 +90,9 @@ to make an incompatible machine pass. See [compatibility](docs/COMPATIBILITY.md)
 
 ## Installation
 
-Download these files from the [v0.2.2 release](https://github.com/aagprojectsteam-max/aag-hotspot-control/releases/tag/v0.2.2):
+Download these files from the [v0.3.0 release](https://github.com/aagprojectsteam-max/aag-hotspot-control/releases/tag/v0.3.0):
 
-- `aag-hotspot-control-v0.2.2.tar.gz`
+- `aag-hotspot-control-v0.3.0.tar.gz`
 - `SHA256SUMS`
 - `release-manifest.json`
 
@@ -100,8 +100,8 @@ Place them in the same directory, then:
 
 ```sh
 sha256sum --check SHA256SUMS
-tar -xzf aag-hotspot-control-v0.2.2.tar.gz
-cd aag-hotspot-control-v0.2.2
+tar -xzf aag-hotspot-control-v0.3.0.tar.gz
+cd aag-hotspot-control-v0.3.0
 sudo ./install.sh
 ```
 
@@ -317,7 +317,7 @@ reporting vulnerabilities privately and [the threat model](docs/SECURITY-MODEL.m
 
 ## Known limitations
 
-- v0.3.0 installed host-side acceptance is pending. Ethernet is covered by mocked tests; no live Ethernet evidence is claimed.
+- v0.3.0 host-side live acceptance passed on the documented Ubuntu 26.04 system for Local-only mode and dynamically detected Cellular Internet. Ethernet is covered by mocked tests; no live Ethernet evidence is claimed.
 - The new public install-time binding is covered by local mock and staging tests;
   it has not been live-activated on a separate clean machine.
 - Full physical-client Internet, client-to-host/host-to-client and BeeBEEP acceptance

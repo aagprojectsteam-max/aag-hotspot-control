@@ -1,7 +1,11 @@
 # Changelog
 
-## 0.3.0 Preview candidate — installed live validation pending
+## 0.3.0 Preview — 2026-10-06 — dynamic uplink and languages
 
+- Host-side live acceptance passed for Local-only and dynamically detected Cellular Internet on Ubuntu 26.04.
+- The final live run verified DHCP/DNS/NAT infrastructure, dynamic guard policy, password reveal, bilingual runtime switching, bounded mode transitions, final OFF cleanup and protected-state restoration.
+- The current cellular profile was accepted despite a changed NetworkManager UUID, confirming removal of machine-specific cellular identity.
+- Ethernet remains hardware-unvalidated; same-radio Wi-Fi STA+AP remains UNVALIDATED_DISABLED; physical-client/BeeBEEP acceptance remains pending.
 - English is the default language for fresh user profiles.
 - Hebrew remains available with full RTL layout and LTR technical values.
 - Settings → Language applies changes immediately to the GUI and tray without

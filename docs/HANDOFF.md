@@ -62,7 +62,7 @@ The public validation intentionally did **not** activate a real hotspot during p
 
 ## Release state
 
-Current public preview is **v0.2.2**. The release is intentionally labeled preview because the public binding/package path has strong mock/staging evidence but does not add a fresh separate-machine physical-client acceptance.
+Current public preview is **v0.3.0**. Host-side Local-only and dynamic Cellular Internet acceptance passed on the documented Ubuntu 26.04 system. The release remains a preview because Ethernet has no live hardware run, Wi-Fi STA+AP remains disabled, and a fresh separate-machine physical-client/BeeBEEP acceptance is still pending.
 
 ## Repository map
 

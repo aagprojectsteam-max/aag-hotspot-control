@@ -1,20 +1,31 @@
-# v0.3.0 candidate acceptance status
+# v0.3.0 acceptance status
 
-Installed live acceptance is pending administrator authentication and an idle AP
-radio. No v0.3.0 release is published until that gate passes. The preceding public
-v0.2.2 release remains unchanged.
+Host-side installed live acceptance passed on the documented Ubuntu 26.04 system.
+The acceptance runner completed Local-only, dynamic Cellular Internet, OFF cleanup,
+and bounded transitions (OFF→Local→OFF, OFF→Internet→OFF, Local→Internet→OFF,
+Internet→Local→OFF). Final OFF, baseline restoration, protected-profile preservation,
+and unrelated-service preservation were verified.
 
-Current candidate evidence: 242 hardware-free tests PASS; GTK English/Hebrew matrix
-215 checks PASS; password GUI 33 checks PASS; catalog/static/privacy checks PASS.
-Thirty-one packet-policy checks passed in a disposable user/network namespace,
-including dynamic egress, RFC1918 upstreams, Local IPv4/IPv6/DNS isolation,
-established-flow downgrade and unrelated-interface protection. These are synthetic
-L3 tests, not a physical Wi-Fi client. Staged installation/idempotency/uninstall and
-archive extraction pass. The new installed live run is still required.
+The live Cellular path was selected from the kernel public route and NetworkManager
+metadata using the current 019 eSIM profile with a UUID different from the historic
+development UUID. This confirms that no fixed cellular UUID/provider/device binding
+is required. Local-only also passed with UPLINK_TYPE=NONE_REQUIRED.
 
-Ethernet live validation is NOT_TESTED_NO_ACTIVE_ETHERNET. Wi-Fi live STA+AP is
-BLOCKED_NO_CONNECTED_STA; production Wi-Fi uplink remains UNVALIDATED_DISABLED.
-Physical-client and BeeBEEP acceptance are not claimed by these checks.
+The installed GUI checks passed in OFF, Local, and Internet modes for English and
+Hebrew RTL, password reveal/copy/auto-hide, device-page rendering, tray mode, and
+language changes without a hotspot restart. No physical client was associated during
+this final run, so client continuity/Internet and BeeBEEP remain NOT_TESTED.
+
+Public candidate evidence includes 242 hardware-free tests, 215 bilingual GTK checks,
+password GUI checks, static/privacy checks, and 31 isolated packet-policy checks for
+dynamic egress, RFC1918 upstreams, Local IPv4/IPv6/DNS isolation, flow downgrade,
+and unrelated-interface protection. Staged install/idempotency/uninstall and archive
+extraction pass.
+
+Ethernet live validation is NOT_TESTED_NO_ACTIVE_ETHERNET. Same-radio Wi-Fi STA+AP
+remains UNVALIDATED_DISABLED; capability and same-channel handling are tested, but
+no production Wi-Fi uplink claim is made. Physical-client and BeeBEEP acceptance
+remain NOT_TESTED.
 
 ---
 
