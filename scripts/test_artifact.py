@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """Install/uninstall only a disposable prefix, from an extracted release archive."""
 import hashlib
+import gettext
 import json
 from pathlib import Path
 import subprocess
@@ -37,6 +38,12 @@ def main():
         expected=['usr/bin/aag-hotspot','usr/bin/aag-hotspot-gui','usr/libexec/aag-hotspot-helper','usr/share/applications/org.aag.Hotspot.desktop','usr/share/polkit-1/actions/org.aag.hotspot.policy','usr/lib/aag-hotspot/aag_hotspot/binding.py']
         assert all((prefix/name).is_file() for name in expected)
         checks['installed_layout']=True
+        catalog=prefix/'usr/lib/aag-hotspot/aag_hotspot/locale/he/LC_MESSAGES/aag-hotspot.mo'
+        assert catalog.read_bytes()==(source/'lib/aag_hotspot/locale/he/LC_MESSAGES/aag-hotspot.mo').read_bytes()
+        with catalog.open('rb') as stream:
+            assert gettext.GNUTranslations(stream).gettext('Settings')=='הגדרות'
+        assert (source/'po/he.po').is_file() and (source/'po/aag-hotspot.pot').is_file()
+        checks['translation_resources_installed']=True
         run(['/usr/bin/desktop-file-validate',str(prefix/'usr/share/applications/org.aag.Hotspot.desktop')],source)
         checks['desktop_entry']=True
         run([str(prefix/'usr/bin/aag-hotspot'),'--help'],source)
@@ -44,6 +51,7 @@ def main():
         assert dry.get('dry_run') is True
         checks['cli_no_activation']=True
         run(['/usr/bin/python3','scripts/check-static.py'],source)
+        run(['/usr/bin/python3','scripts/check-i18n.py'],source)
         run(['/usr/bin/python3','-m','unittest','discover','-s','tests'],source)
         checks['extracted_static_and_regression']=True
         sentinel=prefix/'etc/NetworkManager/system-connections/Hotspot.nmconnection';sentinel.parent.mkdir(parents=True);sentinel.write_text('synthetic unrelated profile')
@@ -53,6 +61,7 @@ def main():
         result=json.loads(run(['./uninstall.sh','--root',str(prefix)],source));assert result['credentials_preserved']
         assert sentinel.read_bytes()==before and hashlib.sha256(credential.read_bytes()).hexdigest()==secret_hash
         assert all(not (prefix/name).exists() for name in expected)
+        assert not catalog.exists()
         again=json.loads(run(['./uninstall.sh','--root',str(prefix)],source));assert again['status']=='NOT_INSTALLED'
         checks['uninstall_scope_and_idempotency']=True
         checks['production_commands_executed']=False

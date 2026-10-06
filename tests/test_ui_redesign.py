@@ -13,6 +13,12 @@ from gi.repository import GLib
 
 
 class UIModelTests(unittest.TestCase):
+    def setUp(self):
+        from aag_hotspot import i18n
+        previous = i18n.language()
+        i18n.set_language('he')
+        self.addCleanup(i18n.set_language, previous)
+
     def test_human_connected_duration(self):
         self.assertEqual(duration_label(256),'4 דקות')
         self.assertEqual(duration_label(60),'דקה אחת')

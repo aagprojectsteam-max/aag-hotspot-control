@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0 — Unreleased — internationalization component
+
+- English is the default language for fresh user profiles.
+- Hebrew remains available with full RTL layout and LTR technical values.
+- Settings → Language applies changes immediately to the GUI and tray without
+  restarting the hotspot or backend.
+- Existing Hebrew users are migrated once when trusted legacy GUI settings are
+  present; explicit per-user language choices always win.
+- English source strings and maintained Hebrew gettext catalogs support future
+  languages without separate GUI implementations.
+- This component does not change uplink detection, firewall policy, CLI machine
+  keys, or the current Wi-Fi STA+AP validation boundary.
+
 ## 0.2.2 — 2026-10-06 — password reveal
 
 - Add an explicit Hebrew password-reveal action beside network information in OFF, Internet and Local modes.

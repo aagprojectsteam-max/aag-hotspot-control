@@ -8,6 +8,7 @@ import time
 from concurrent.futures import Future
 from unittest.mock import patch
 sys.path.insert(0, '/usr/lib/aag-hotspot' if '--installed' in sys.argv else str(Path(__file__).resolve().parents[1] / 'lib'))
+from aag_hotspot import i18n
 from aag_hotspot.gui import Application, Window, Gtk, GLib
 from aag_hotspot import secret_dialog
 SECRET = 'synthetic-test-password'
@@ -37,7 +38,7 @@ class Transport:
 
 def main():
     assert os.geteuid()!=0
-    t=Transport();app=Application(t);app.set_application_id('org.aag.Hotspot.PasswordTest');app.register(None)
+    t=Transport();app=Application(t, settings=i18n.LanguageSettings(initial='he'));app.set_application_id('org.aag.Hotspot.PasswordTest');app.register(None)
     w=Window(app,t);w.present();checks={}
     try:
         assert pump(lambda:not w.refreshing)

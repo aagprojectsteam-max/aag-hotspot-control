@@ -1,0 +1,371 @@
+# English source messages for AAG Hotspot.
+# Copyright (C) AAG Hotspot contributors
+# This file is distributed under the same license as the AAG Hotspot package.
+# AAG Hotspot contributors.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: AAG Hotspot 0.3.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-06 15:42+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: AAG Hotspot contributors\n"
+"Language-Team: Translation contributors\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+msgid "Hotspot is off"
+msgstr ""
+
+msgid "Local only"
+msgstr ""
+
+msgid "Internet hotspot"
+msgstr ""
+
+msgid "Unknown status"
+msgstr ""
+
+msgid "Updating hotspot…"
+msgstr ""
+
+msgid "Turning off hotspot…"
+msgstr ""
+
+msgid "FM350 / Cellular"
+msgstr ""
+
+msgid "Wi-Fi (UNVALIDATED)"
+msgstr ""
+
+msgid "No connection"
+msgstr ""
+
+msgid "Hotspot status unavailable"
+msgstr ""
+
+msgid "Unknown"
+msgstr ""
+
+msgid "Install AAG Hotspot before turning on the hotspot."
+msgstr ""
+
+msgid ""
+"Authorization was cancelled or denied. This request did not change your "
+"hotspot."
+msgstr ""
+
+msgid ""
+"Your existing Wi-Fi connection was preserved. Wi-Fi uplink sharing is not "
+"yet supported."
+msgstr ""
+
+msgid ""
+"The current Internet connection cannot be shared safely. You can use local-"
+"only mode."
+msgstr ""
+
+msgid ""
+"A supported cellular Internet connection is required. You can use local-only "
+"mode instead."
+msgstr ""
+
+msgid "Set a hotspot password first."
+msgstr ""
+
+msgid "Wi-Fi is blocked. Check the wireless switch or airplane mode."
+msgstr ""
+
+msgid ""
+"The Wi-Fi adapter did not become ready in time. Check the network before "
+"trying again."
+msgstr ""
+
+msgid ""
+"NetworkManager is unavailable. Check that the network service is running."
+msgstr ""
+
+msgid ""
+"The operation timed out. Cleanup may still be running. Check the status "
+"before trying again."
+msgstr ""
+
+msgid ""
+"The hotspot service could not be reached. Check the application installation."
+msgstr ""
+
+msgid "Another operation is running. Wait a moment, then refresh."
+msgstr ""
+
+msgid "The hotspot status could not be verified. Refresh or open Diagnostics."
+msgstr ""
+
+msgid ""
+"The operation did not finish. Open Diagnostics to check the hotspot status."
+msgstr ""
+
+msgid "AAG Hotspot"
+msgstr ""
+
+msgid "Show password"
+msgstr ""
+
+msgid "Change password…"
+msgstr ""
+
+msgid "Diagnostics"
+msgstr ""
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "About AAG Hotspot"
+msgstr ""
+
+msgid "Quit application"
+msgstr ""
+
+msgid "Language"
+msgstr ""
+
+msgid ""
+"Choose your language. Changes apply immediately without interrupting the "
+"hotspot."
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid ""
+"Your language preference could not be saved. The current language was kept."
+msgstr ""
+
+msgid "Waiting for authorization and completion…"
+msgstr ""
+
+msgid "Menu"
+msgstr ""
+
+msgid "Loading…"
+msgstr ""
+
+msgid "Network name"
+msgstr ""
+
+msgid "Internet source"
+msgstr ""
+
+msgid "Connected devices"
+msgstr ""
+
+msgid "Share Internet"
+msgstr ""
+
+msgid "Local network only"
+msgstr ""
+
+msgid "Turn off hotspot"
+msgstr ""
+
+msgid "Switch mode"
+msgstr ""
+
+msgid "No devices connected"
+msgstr ""
+
+msgid "Devices connected to this hotspot will appear here."
+msgstr ""
+
+msgid "Choose how to use your hotspot."
+msgstr ""
+
+msgid "Share your cellular Internet connection."
+msgstr ""
+
+msgid "Connect devices locally without sharing Internet access."
+msgstr ""
+
+msgid "Internet sharing"
+msgstr ""
+
+msgid "No"
+msgstr ""
+
+msgid "IP address"
+msgstr ""
+
+msgid "MAC address"
+msgstr ""
+
+msgid "Signal strength"
+msgstr ""
+
+msgid "Connected for"
+msgstr ""
+
+msgid "Copy IP address"
+msgstr ""
+
+msgid "Device list unavailable"
+msgstr ""
+
+msgid "Try refreshing in a moment."
+msgstr ""
+
+msgid "Cellular Internet sharing and local Wi-Fi for Ubuntu"
+msgstr ""
+
+msgid "Version"
+msgstr ""
+
+msgid ""
+"Your language preference could not be read or saved. Check your user "
+"settings directory."
+msgstr ""
+
+msgid "Authorization was cancelled or denied. Your hotspot was not changed."
+msgstr ""
+
+msgid "The stored password could not be read. Your hotspot was not changed."
+msgstr ""
+
+msgid "Turn off the hotspot before changing its password."
+msgstr ""
+
+msgid "Hotspot password"
+msgstr ""
+
+msgid "Use 12–63 ASCII letters, numbers or symbols."
+msgstr ""
+
+msgid "New password"
+msgstr ""
+
+msgid "Confirm password"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "The passwords do not match."
+msgstr ""
+
+msgid "Enter 12–63 printable ASCII characters."
+msgstr ""
+
+msgid "Application installation"
+msgstr ""
+
+msgid "Cellular Internet source"
+msgstr ""
+
+#, python-brace-format
+msgid "{label}: {result}"
+msgstr ""
+
+msgid "OK"
+msgstr ""
+
+msgid "Needs attention"
+msgstr ""
+
+msgid "Required system components are missing."
+msgstr ""
+
+msgid "Wi-Fi STA+AP uplink sharing is not yet supported."
+msgstr ""
+
+msgid "The tray indicator is unavailable. You can use the main window."
+msgstr ""
+
+msgid "Wi-Fi password"
+msgstr ""
+
+msgid "Show"
+msgstr ""
+
+msgid "Copy"
+msgstr ""
+
+msgid "Copy password"
+msgstr ""
+
+msgid ""
+"The password hides after 30 seconds. This dialog closes after one minute."
+msgstr ""
+
+msgid "Hide"
+msgstr ""
+
+msgid ""
+"Password copied. The clipboard copy expires after 30 seconds or when this "
+"dialog closes."
+msgstr ""
+
+msgid "Could not copy to the clipboard."
+msgstr ""
+
+msgid "Device count unavailable"
+msgstr ""
+
+#, python-brace-format
+msgid "{count} device connected"
+msgid_plural "{count} devices connected"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Off"
+msgstr ""
+
+msgid "Internet"
+msgstr ""
+
+#, python-brace-format
+msgid "AAG Hotspot — {mode}"
+msgstr ""
+
+#, python-brace-format
+msgid "{title} — {count}"
+msgstr ""
+
+msgid "Open AAG Hotspot"
+msgstr ""
+
+#, python-brace-format
+msgid "Status: {mode}"
+msgstr ""
+
+#, python-brace-format
+msgid "{count} second"
+msgid_plural "{count} seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} minute"
+msgid_plural "{count} minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} hour"
+msgid_plural "{count} hours"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{hours}, {minutes}"
+msgstr ""
+
+msgid "English"
+msgstr ""
+
+msgid "Hebrew"
+msgstr ""

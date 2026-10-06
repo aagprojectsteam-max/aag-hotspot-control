@@ -4,7 +4,7 @@ Use issues for reproducible bugs and focused feature requests; use Discussions f
 usage questions. Keep reports sanitized. Explain Ubuntu, kernel, NetworkManager,
 Wi-Fi chipset/driver, mode, expected result and safe diagnostic output.
 
-The primary GUI is Hebrew RTL. English translations and broader hardware support
+The development GUI supports English and Hebrew RTL. Additional translations and broader hardware support
 are welcome, but must not bypass the current compatibility or privilege gates.
 
 On a development machine with Python 3, PyGObject/GTK4/Libadwaita and desktop-file-utils:

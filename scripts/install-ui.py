@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Install only the reviewed GUI, tray, UI support and symbolic icons.
+"""Install only the reviewed GUI, translations, tray, UI support and icons.
 
 Never runs the package installer, helper, NetworkManager, systemctl or firewall
 commands. Existing backend receipt entries/bytes/modes/mtimes remain identical.
@@ -15,13 +15,15 @@ sys.dont_write_bytecode=True
 ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('ui_package_files',ROOT/'scripts/package.py')
 pkg=importlib.util.module_from_spec(spec);spec.loader.exec_module(pkg)
-UI_MODULES=('gui.py','tray.py','ui_support.py')
+UI_MODULES=('gui.py','tray.py','ui_support.py','secret_dialog.py','i18n.py')
+CATALOGS=(Path('locale/he/LC_MESSAGES/aag-hotspot.mo'),)
 ICON_NAMES=tuple('aag-hotspot-'+mode+'-symbolic.svg' for mode in ('off','internet','local'))
 
 
 def payloads():
     files={Path('usr/lib/aag-hotspot/aag_hotspot')/name:ROOT/'lib/aag_hotspot'/name for name in UI_MODULES}
     files.update({Path('usr/share/icons/hicolor/scalable/status')/name:ROOT/'desktop/icons/hicolor/scalable/status'/name for name in ICON_NAMES})
+    files.update({Path('usr/lib/aag-hotspot/aag_hotspot')/name:ROOT/'lib/aag_hotspot'/name for name in CATALOGS})
     return files
 
 
@@ -44,6 +46,7 @@ def install(root):
     mapping=payloads()
     allowed={Path('usr/lib/aag-hotspot/aag_hotspot')/name for name in UI_MODULES}
     allowed|={Path('usr/share/icons/hicolor/scalable/status')/name for name in ICON_NAMES}
+    allowed|={Path('usr/lib/aag-hotspot/aag_hotspot')/name for name in CATALOGS}
     if set(mapping)!=allowed:raise RuntimeError('UI update scope changed')
     all_before=inventory(root,receipt)
     unchanged=inventory(root,receipt,allowed)

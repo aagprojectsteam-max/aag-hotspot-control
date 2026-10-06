@@ -88,7 +88,7 @@ class ClientTests(unittest.TestCase):
 
     def test_associated_no_and_foreign_interface(self):
         self.assertEqual(self.merge(s=station()+'\tassociated: no\n'), [])
-        with self.assertRaises(ValueError): self.merge(s=station(interface='wlan0'))
+        with self.assertRaises(ValueError): self.merge(s=station(interface='wlp87s0f0'))
 
     def test_missing_signal_and_time_are_unknown(self):
         row=self.merge(s=f'Station {MAC} (on {VIF})')[0]
@@ -156,6 +156,12 @@ class ClientTests(unittest.TestCase):
 
 
 class TrayTests(unittest.TestCase):
+    def setUp(self):
+        from aag_hotspot import i18n
+        previous = i18n.language()
+        i18n.set_language('he')
+        self.addCleanup(i18n.set_language, previous)
+
     def test_modes_and_client_count_updates(self):
         for mode,label in [('off','כבוי'),('internet','אינטרנט'),('local','מקומי בלבד')]:
             for count in (0,1,2,None):

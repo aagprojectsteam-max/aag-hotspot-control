@@ -9,6 +9,7 @@ from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, '/usr/lib/aag-hotspot' if '--installed' in sys.argv else str(ROOT / 'lib'))
+from aag_hotspot import i18n
 from aag_hotspot import gui, tray
 from gi.repository import Gio, GLib
 
@@ -35,7 +36,7 @@ class Transport:
 
 def main():
     if os.geteuid()==0: return 2
-    t=Transport(); app=gui.Application(t); app.set_application_id('org.aag.Hotspot.ClientViewTest')
+    t=Transport(); app=gui.Application(t, settings=i18n.LanguageSettings(initial='he')); app.set_application_id('org.aag.Hotspot.ClientViewTest')
     app.register(None)
     if app.get_is_remote(): raise RuntimeError('Test already running')
     window=gui.Window(app,t);window.set_title('AAG Hotspot — בדיקת תצוגה');window.present()

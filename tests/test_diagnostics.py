@@ -14,6 +14,12 @@ from aag_hotspot.gui import presentation, error_message
 
 
 class DiagnosticTests(unittest.TestCase):
+    def setUp(self):
+        from aag_hotspot import i18n
+        previous = i18n.language()
+        i18n.set_language('he')
+        self.addCleanup(i18n.set_language, previous)
+
     def test_helper_malformed_or_failed_success_response_is_rejected(self):
         for data, code in [({}, 0), ({'ok': 'true'}, 0), ({'ok': True}, 1), ([], 0), (None, 0),
                            ({'ok': True, 'status': 'invalid'}, 0), ({'ok': True, 'checks': None}, 0),

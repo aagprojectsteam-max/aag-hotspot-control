@@ -1,0 +1,327 @@
+# Hebrew translations for AAG Hotspot.
+# English is the source language.
+msgid ""
+msgstr "Project-Id-Version: AAG Hotspot 0.3.0\nLanguage: he\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPO-Revision-Date: 2026-10-06 00:00+0300\nLast-Translator: AAG Hotspot contributors\nLanguage-Team: Hebrew\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "A supported cellular Internet connection is required. You can use local-only mode instead."
+msgstr "נדרש חיבור סלולרי פעיל כמקור האינטרנט. אפשר לבחור רשת מקומית בלבד."
+
+msgid "AAG Hotspot"
+msgstr "AAG Hotspot"
+
+msgid "AAG Hotspot — {mode}"
+msgstr "AAG Hotspot — {mode}"
+
+msgid "About AAG Hotspot"
+msgstr "אודות AAG Hotspot"
+
+msgid "Another operation is running. Wait a moment, then refresh."
+msgstr "פעולה אחרת מתבצעת. יש להמתין ולרענן."
+
+msgid "Application installation"
+msgstr "התקנת האפליקציה"
+
+msgid "Authorization was cancelled or denied. This request did not change your hotspot."
+msgstr "האימות בוטל או לא אושר. מצב הרשת לא שונה על ידי בקשה זו."
+
+msgid "Authorization was cancelled or denied. Your hotspot was not changed."
+msgstr "האימות בוטל או לא אושר. מצב הרשת לא השתנה."
+
+msgid "Cellular Internet sharing and local Wi-Fi for Ubuntu"
+msgstr "נקודה חמה סלולרית ורשת מקומית ל־Ubuntu"
+
+msgid "Cellular Internet source"
+msgstr "מקור אינטרנט סלולרי"
+
+msgid "Change password…"
+msgstr "סיסמת הרשת…"
+
+msgid "Choose how to use your hotspot."
+msgstr "בחרו כיצד להפעיל את הרשת."
+
+msgid "Choose your language. Changes apply immediately without interrupting the hotspot."
+msgstr "בחרו שפה. השינוי חל מיד ואינו מפריע לפעולת הרשת."
+
+msgid "Close"
+msgstr "סגירה"
+
+msgid "Confirm password"
+msgstr "הקלידו שוב"
+
+msgid "Connect devices locally without sharing Internet access."
+msgstr "חיבור מקומי, ללא שיתוף אינטרנט."
+
+msgid "Connected devices"
+msgstr "מכשירים מחוברים"
+
+msgid "Connected for"
+msgstr "זמן חיבור"
+
+msgid "Copy"
+msgstr "העתק"
+
+msgid "Copy IP address"
+msgstr "העתק כתובת IP"
+
+msgid "Copy password"
+msgstr "העתק סיסמה"
+
+msgid "Could not copy to the clipboard."
+msgstr "לא ניתן להעתיק ללוח כרגע."
+
+msgid "Device count unavailable"
+msgstr "מספר מכשירים לא ידוע"
+
+msgid "Device list unavailable"
+msgstr "לא ניתן לעדכן את רשימת המכשירים"
+
+msgid "Devices connected to this hotspot will appear here."
+msgstr "מכשירים המחוברים לרשת יופיעו כאן."
+
+msgid "Diagnostics"
+msgstr "אבחון"
+
+msgid "English"
+msgstr "אנגלית"
+
+msgid "Enter 12–63 printable ASCII characters."
+msgstr "יש לבחור 12–63 תווי ASCII ניתנים להדפסה."
+
+msgid "FM350 / Cellular"
+msgstr "FM350 / סלולרי"
+
+msgid "Hebrew"
+msgstr "עברית"
+
+msgid "Hide"
+msgstr "הסתר"
+
+msgid "Hotspot is off"
+msgstr "הנקודה החמה כבויה"
+
+msgid "Hotspot password"
+msgstr "סיסמת הרשת"
+
+msgid "Hotspot status unavailable"
+msgstr "לא ניתן לאמת את מצב הרשת"
+
+msgid "IP address"
+msgstr "כתובת IP"
+
+msgid "Install AAG Hotspot before turning on the hotspot."
+msgstr "האפליקציה מוכנה להתקנה. יש להשלים התקנה לפני הפעלת הרשת."
+
+msgid "Internet"
+msgstr "אינטרנט"
+
+msgid "Internet hotspot"
+msgstr "Hotspot + אינטרנט"
+
+msgid "Internet sharing"
+msgstr "אינטרנט משותף"
+
+msgid "Internet source"
+msgstr "מקור אינטרנט"
+
+msgid "Language"
+msgstr "שפה"
+
+msgid "Loading…"
+msgstr "טוען…"
+
+msgid "Local network only"
+msgstr "הפעל מקומי בלבד"
+
+msgid "Local only"
+msgstr "מקומי בלבד"
+
+msgid "MAC address"
+msgstr "כתובת MAC"
+
+msgid "Menu"
+msgstr "תפריט"
+
+msgid "Needs attention"
+msgstr "נדרשת בדיקה"
+
+msgid "Network name"
+msgstr "שם הרשת"
+
+msgid "NetworkManager is unavailable. Check that the network service is running."
+msgstr "לא ניתן לקבל מצב מ־NetworkManager. יש לבדוק ששירות הרשת פועל."
+
+msgid "New password"
+msgstr "סיסמה חדשה"
+
+msgid "No"
+msgstr "לא"
+
+msgid "No connection"
+msgstr "אין חיבור"
+
+msgid "No devices connected"
+msgstr "אין מכשירים מחוברים כרגע"
+
+msgid "OK"
+msgstr "תקין"
+
+msgid "Off"
+msgstr "כבוי"
+
+msgid "Open AAG Hotspot"
+msgstr "פתח AAG Hotspot"
+
+msgid "Password copied. The clipboard copy expires after 30 seconds or when this dialog closes."
+msgstr "הסיסמה הועתקה. העותק בלוח יימחק אחרי 30 שניות או בסגירת החלון."
+
+msgid "Quit application"
+msgstr "סגור את האפליקציה"
+
+msgid "Refresh"
+msgstr "רענן"
+
+msgid "Required system components are missing."
+msgstr "חסרים רכיבי מערכת הדרושים להפעלה."
+
+msgid "Save"
+msgstr "שמירה"
+
+msgid "Set a hotspot password first."
+msgstr "יש להגדיר סיסמה לרשת תחילה."
+
+msgid "Settings"
+msgstr "הגדרות"
+
+msgid "Share Internet"
+msgstr "הפעל עם אינטרנט"
+
+msgid "Share your cellular Internet connection."
+msgstr "גישה לאינטרנט דרך החיבור הסלולרי."
+
+msgid "Show"
+msgstr "הצג"
+
+msgid "Show password"
+msgstr "הצג סיסמה"
+
+msgid "Signal strength"
+msgstr "עוצמת קליטה"
+
+msgid "Status: "
+msgstr "מצב: "
+
+msgid "Status: {mode}"
+msgstr "מצב: {mode}"
+
+msgid "Switch mode"
+msgstr "החלף מצב"
+
+msgid "The Wi-Fi adapter did not become ready in time. Check the network before trying again."
+msgstr "מתאם ה־Wi-Fi לא היה מוכן בזמן. יש לבדוק את מצב הרשת לפני ניסיון נוסף."
+
+msgid "The hotspot service could not be reached. Check the application installation."
+msgstr "לא ניתן לקבל תשובה תקינה משירות האפליקציה. יש לבדוק את ההתקנה."
+
+msgid "The hotspot status could not be verified. Refresh or open Diagnostics."
+msgstr "לא ניתן לאמת את מצב הרשת כרגע. יש לרענן או להפעיל בדיקה."
+
+msgid "The operation did not finish. Open Diagnostics to check the hotspot status."
+msgstr "הפעולה לא הושלמה. פרטי האבחון זמינים בתפריט אבחון; אין להניח שהרשת פעילה."
+
+msgid "The operation timed out. Cleanup may still be running. Check the status before trying again."
+msgstr "הפעולה חרגה מהזמן. ייתכן שהניקוי עדיין מתבצע; יש לבדוק מצב ולבקש כיבוי."
+
+msgid "The password hides after 30 seconds. This dialog closes after one minute."
+msgstr "הסיסמה תוסתר אחרי 30 שניות. החלון ייסגר אחרי דקה."
+
+msgid "The passwords do not match."
+msgstr "הסיסמאות אינן תואמות."
+
+msgid "The stored password could not be read. Your hotspot was not changed."
+msgstr "לא ניתן לקרוא את הסיסמה המאובטחת. מצב הרשת לא השתנה."
+
+msgid "The tray indicator is unavailable. You can use the main window."
+msgstr "מחוון המגש אינו זמין. אפשר להשתמש בחלון הראשי."
+
+msgid "Try refreshing in a moment."
+msgstr "נסו לרענן בעוד רגע."
+
+msgid "Turn off hotspot"
+msgstr "כבה Hotspot"
+
+msgid "Turn off the hotspot before changing its password."
+msgstr "יש לכבות את הרשת לפני שינוי הסיסמה."
+
+msgid "Turning off hotspot…"
+msgstr "מכבה את הרשת…"
+
+msgid "Unknown"
+msgstr "לא ידוע"
+
+msgid "Unknown status"
+msgstr "מצב לא ידוע"
+
+msgid "Updating hotspot…"
+msgstr "מעדכן את הרשת…"
+
+msgid "Use 12–63 ASCII letters, numbers or symbols."
+msgstr "בחרו 12–63 תווים באנגלית, מספרים או סימנים."
+
+msgid "Version"
+msgstr "גרסה"
+
+msgid "Waiting for authorization and completion…"
+msgstr "ממתין לאישור ולסיום הפעולה…"
+
+msgid "Wi-Fi (UNVALIDATED)"
+msgstr "Wi-Fi (לא מאומת)"
+
+msgid "Wi-Fi STA+AP uplink sharing is not yet supported."
+msgstr "מצב Wi-Fi כמקור אינטרנט עדיין אינו זמין."
+
+msgid "Wi-Fi is blocked. Check the wireless switch or airplane mode."
+msgstr "מתאם ה־Wi-Fi חסום. יש לבדוק את מתג האלחוט או מצב הטיסה."
+
+msgid "Wi-Fi password"
+msgstr "סיסמת Wi-Fi"
+
+msgid "Your existing Wi-Fi connection was preserved. Wi-Fi uplink sharing is not yet supported."
+msgstr "חיבור ה־Wi-Fi הקיים נשמר. שימוש בו כמקור אינטרנט עדיין אינו זמין."
+
+msgid "Your language preference could not be read or saved. Check your user settings directory."
+msgstr "לא ניתן לקרוא או לשמור את העדפת השפה. יש לבדוק את תיקיית ההגדרות האישית."
+
+msgid "Your language preference could not be saved. The current language was kept."
+msgstr "לא ניתן לשמור את העדפת השפה. השפה הנוכחית נשמרה."
+
+msgid "{hours}, {minutes}"
+msgstr "{hours}, {minutes}"
+
+msgid "{label}: {result}"
+msgstr "{label}: {result}"
+
+msgid "{title} — {count}"
+msgstr "{title} — {count}"
+
+msgid "{count} device connected"
+msgid_plural "{count} devices connected"
+msgstr[0] "{count} מכשיר מחובר"
+msgstr[1] "{count} מכשירים מחוברים"
+
+msgid "{count} second"
+msgid_plural "{count} seconds"
+msgstr[0] "שנייה אחת"
+msgstr[1] "{count} שניות"
+
+msgid "{count} minute"
+msgid_plural "{count} minutes"
+msgstr[0] "דקה אחת"
+msgstr[1] "{count} דקות"
+
+msgid "{count} hour"
+msgid_plural "{count} hours"
+msgstr[0] "שעה אחת"
+msgstr[1] "{count} שעות"
+
+msgid "The current Internet connection cannot be shared safely. You can use local-only mode."
+msgstr "לא ניתן לשתף בבטחה את חיבור האינטרנט הנוכחי. אפשר להשתמש במצב מקומי בלבד."

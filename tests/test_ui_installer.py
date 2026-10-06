@@ -25,6 +25,9 @@ class UIInstallerTests(unittest.TestCase):
         result=u.install(self.root);self.assertTrue(result['installed_source_match']);self.assertFalse(result['backend_installed'])
         after=u.inventory(self.root,json.loads(self.manifest.read_text()),set(u.payloads()))
         self.assertEqual(before,after);self.assertEqual(u.install(self.root)['changed_files'],0)
+        catalog=Path('usr/lib/aag-hotspot/aag_hotspot/locale/he/LC_MESSAGES/aag-hotspot.mo')
+        self.assertEqual((self.root/catalog).read_bytes(),(ROOT/'lib/aag_hotspot/locale/he/LC_MESSAGES/aag-hotspot.mo').read_bytes())
+        self.assertIn(str(catalog),json.loads(self.manifest.read_text())['files'])
 
     def test_scope_cannot_expand_to_backend(self):
         with patch.object(u,'payloads',return_value={Path('usr/lib/aag-hotspot/aag_hotspot/backend.py'):ROOT/'lib/aag_hotspot/backend.py'}):

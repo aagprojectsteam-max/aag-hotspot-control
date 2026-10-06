@@ -5,13 +5,16 @@ Share an existing cellular Internet connection, create a **local-only LAN withou
 sharing Internet**, or turn the hotspot off. See connected devices without
 switching to a terminal.
 
-**Current public preview: v0.2.2.** The GUI is currently **Hebrew RTL only**; there is
-no English GUI yet. This is a conservative, hardware-dependent tool, not a universal
+**Development for v0.3.0:** English is the default for fresh user profiles; Hebrew
+remains fully supported with RTL layout. Select **Settings → Language** to switch
+immediately. The currently published v0.2.2 preview predates this localization update.
+
+This is a conservative, hardware-dependent tool, not a universal
 replacement for every Linux network manager. Read the requirements before installing.
 
 ## Features
 
-- Native GTK4/Libadwaita GUI with stable window size, light/dark themes and a separate devices page.
+- Native GTK4/Libadwaita GUI with English and Hebrew, stable window size, light/dark themes and a separate devices page.
 - **Hotspot + Internet:** share the existing supported cellular connection through `wwan0`.
 - **Local-only Hotspot:** a private LAN with external IPv4 forwarding, IPv6 bypass and recursive DNS blocked.
 - **Off:** deactivate and remove the current AAG-owned hotspot resources.
@@ -24,7 +27,8 @@ replacement for every Linux network manager. Read the requirements before instal
 
 ## Screenshots
 
-These are clean application-only captures with **synthetic demonstration data**.
+These show the v0.3.0 development UI in English, using clean application-only
+captures with **synthetic demonstration data**.
 They do not imply new physical-client acceptance or show a real device's identity.
 
 | OFF | Internet sharing |
@@ -35,10 +39,28 @@ They do not imply new physical-client acceptance or show a real device's identit
 | --- | --- |
 | ![Local-only hotspot without shared Internet](docs/screenshots/local.png) | ![Connected-device page with synthetic IP, MAC, signal and duration](docs/screenshots/connected-devices.png) |
 
-![Minimal tray menu preview; GNOME host rendering varies](docs/screenshots/tray-menu.png)
+![Hebrew tray menu example; GNOME host rendering varies](docs/screenshots/tray-menu.png)
 
 The tray image is a native GTK preview of the exported menu model. Actual panel
 appearance and click behavior are controlled by the desktop's indicator host.
+
+## Languages (planned v0.3.0)
+
+- **English — default** for new user profiles, regardless of desktop language.
+- **Hebrew — full RTL support**, with LTR IP/MAC addresses and other technical values.
+
+Open **Settings → Language** and choose **English** or **עברית**. Changes apply
+immediately to the window, device page, dialogs, errors and tray. They never
+restart the hotspot or networking services. Preferences are private to your user.
+
+An existing user's trusted window-settings file from the Hebrew-only GUI triggers
+a one-time migration to Hebrew. A saved language selection always takes priority.
+Users without that legacy evidence start in English. See [localization and
+migration](docs/LOCALIZATION.md) for details and translator instructions.
+
+| English settings | Hebrew settings |
+| --- | --- |
+| ![English language selector](docs/screenshots/en-settings.png) | ![Hebrew RTL language selector](docs/screenshots/he-settings.png) |
 
 ## Requirements
 
@@ -126,13 +148,13 @@ Opening or refreshing it only reads status.
 
 | GUI control | Meaning |
 | --- | --- |
-| הפעל עם אינטרנט | Start Hotspot + Internet using the bound cellular connection |
-| הפעל מקומי בלבד | Start a local-only hotspot |
-| כבה Hotspot | Turn the active hotspot off |
-| החלף מצב | Switch between Internet and local-only modes |
-| מכשירים מחוברים | Open the connected-device page |
-| הצג סיסמה | Authorize, reveal or copy the password in any mode |
-| סיסמת הרשת… | Configure the password securely, while OFF |
+| Share Internet / הפעל עם אינטרנט | Start Hotspot + Internet using the bound cellular connection |
+| Local network only / הפעל מקומי בלבד | Start a local-only hotspot |
+| Turn off hotspot / כבה Hotspot | Turn the active hotspot off |
+| Switch mode / החלף מצב | Switch between Internet and local-only modes |
+| Connected devices / מכשירים מחוברים | Open the connected-device page |
+| Show password / הצג סיסמה | Authorize, reveal or copy the password in any mode |
+| Change password… / סיסמת הרשת… | Configure the password securely, while OFF |
 
 SSID: **AAG-Hotspot**. Host address: **10.77.0.1/24**. Band/channel: **2.4 GHz / 6**.
 Use the password menu before first activation, or `aag-hotspot configure` for a
@@ -177,7 +199,7 @@ client communication still require acceptance testing. [Security model](docs/SEC
 Only stations associated with the active AAG AP are shown. MAC addresses come from
 `iw station dump`; current DHCP leases provide IPv4/hostname; a reachable neighbor
 is an address fallback only. Signal and connected time come from the station data.
-Unknown names display **לא ידוע**; absent addresses remain unknown.
+Unknown names display **Unknown** (Hebrew: **לא ידוע**); absent addresses remain unknown.
 
 The GUI updates every five seconds in a background worker. Client snapshots expire
 after 15 seconds without a fresh update. A reconnect or mode switch can produce a
@@ -242,7 +264,7 @@ an active hotspot; it requires OFF for full removal validation.
 ## Architecture
 
 ```text
-Hebrew GTK/Libadwaita GUI + symbolic tray / independent CLI
+English/Hebrew GTK/Libadwaita GUI + symbolic tray / independent CLI
                          ↓
                  unprivileged client transport
                          ↓
@@ -273,8 +295,8 @@ reporting vulnerabilities privately and [the threat model](docs/SECURITY-MODEL.m
 - Full physical-client Internet, client-to-host/host-to-client and BeeBEEP acceptance
   remain **NOT_TESTED**. Screenshots use fixtures.
 - Same-radio Wi-Fi STA + AP uplink remains **UNVALIDATED_DISABLED**.
-- No English GUI, arbitrary uplink selection, subnet/channel
-  editor or general host-service exposure is provided.
+- Arbitrary uplink selection, subnet/channel editing and general host-service exposure
+  are outside the current validated architecture.
 - This first public release is a **preview**, not a universal hardware compatibility promise.
 
 ## Contributing

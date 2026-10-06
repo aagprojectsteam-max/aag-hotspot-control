@@ -1,6 +1,6 @@
 # Architecture
 
-`gui.py` renders the Hebrew GTK4/Libadwaita views. `tray.py` exports a user-session
+`gui.py` renders the English/Hebrew GTK4/Libadwaita views. `tray.py` exports a user-session
 StatusNotifierItem/DBusMenu. Both consume the existing sanitized status transport
 in `client.py`; neither owns network state. `cli.py` uses that same transport.
 

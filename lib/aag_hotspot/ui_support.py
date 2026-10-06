@@ -4,19 +4,27 @@ import os
 from pathlib import Path
 import stat
 import tempfile
+from . import i18n
+from .i18n import _, ngettext
 
 DEFAULT_SIZE = (440, 560)
 MIN_SIZE = (360, 440)
 
 
 def duration_label(seconds):
-    if type(seconds) is not int or seconds < 0: return 'לא ידוע'
-    if seconds < 60: return str(seconds) + ' שניות'
+    if type(seconds) is not int or seconds < 0: return _('Unknown')
+    if seconds < 60: return ngettext('{count} second', '{count} seconds', seconds).format(count=seconds)
     minutes = seconds // 60
-    if minutes < 60: return 'דקה אחת' if minutes == 1 else str(minutes) + ' דקות'
+    if minutes < 60: return ngettext('{count} minute', '{count} minutes', minutes).format(count=minutes)
     hours, minutes = divmod(minutes, 60)
-    remainder = 'דקה אחת' if minutes == 1 else str(minutes) + ' דקות'
-    return ('שעה אחת' if hours == 1 else str(hours) + ' שעות') + (', ' + remainder if minutes else '')
+    remainder = ngettext('{count} minute', '{count} minutes', minutes).format(count=minutes)
+    whole = ngettext('{count} hour', '{count} hours', hours).format(count=hours)
+    return _('{hours}, {minutes}').format(hours=whole, minutes=remainder) if minutes else whole
+
+
+def text_direction(language=None):
+    from gi.repository import Gtk
+    return Gtk.TextDirection.RTL if i18n.direction(language) == 'rtl' else Gtk.TextDirection.LTR
 
 
 def icon_directory():

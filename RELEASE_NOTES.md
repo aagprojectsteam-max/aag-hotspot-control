@@ -1,33 +1,21 @@
-# v0.2.2 — authenticated password reveal
+# Planned v0.3.0 — internationalization component
 
-View or copy the configured Wi-Fi password from the Hebrew GUI in OFF, Internet,
-or Local-only mode. The secondary **הצג סיסמה** action uses the existing scoped
-Polkit helper. Revealing a password does not restart or disconnect the hotspot.
+This component is ready for the planned architectural release. It is not a
+publication or acceptance claim for the separate dynamic-uplink work.
 
-The dialog begins masked, hides visible text after 30 seconds, clears its owned
-clipboard after 30 seconds or closing, and expires after 60 seconds. Authorization
-failure leaves networking untouched. Credentials stay root-owned 0600; the GUI
-stays unprivileged. No changes to network lifecycle, firewall policy, or Wi-Fi
-uplink support are included.
+- **English is now the default** for fresh installations/user profiles.
+- **Full Hebrew RTL remains available**, with IP/MAC/SSID/password values kept LTR.
+- Choose **Settings → Language**. The selection applies immediately to the GUI,
+  password/device dialogs, diagnostics and tray, without restarting networking.
+- Existing users retain Hebrew during upgrade where a trusted legacy GUI
+  window-settings file provides evidence of previous use. Explicit saved
+  selections always win; no root setting or credential is used for migration.
 
-See [password reveal and update instructions](docs/PASSWORD_REVEAL.md). Existing
-compatible installations can use the five-file transactional updater; new installs
-follow the normal [installation guide](README.md#installation).
+See [localization](docs/LOCALIZATION.md) for user settings, translation maintenance,
+test evidence and safe GUI-only installation. CLI keys and networking behavior
+are unchanged by this component. Active-mode language switching is tested with
+fixture transport; the production machine remained OFF throughout this task.
 
-This remains a hardware-dependent public preview. Wi-Fi STA+AP is disabled.
-Physical-client and BeeBEEP acceptance is not implied by GUI or host-side tests.
-Checksums and a per-file release manifest accompany the source archive; artifacts
-are not cryptographically signed. Only sanitized public history is published.
-
-## Validation boundary
-
-- 197 public unit/transaction tests, 33 synthetic GTK reveal/clipboard checks,
-  existing GUI/tray regressions, 69 layout checks and archive staging tests pass.
-- The five-file update is installed and hash-matched on the development machine;
-  its full 287-test regression suite passes against installed code.
-- Real OFF-mode authorization/reveal/copy passes, with root-owned 0600 credentials,
-  unchanged protected networking and no secret in status, doctor, journal or Git.
-- Internet live validation was blocked by that existing installation's stale
-  cellular-profile binding. Local live validation awaits OS authentication.
-  Active-client continuity is **NOT_TESTED**; no networking binding was changed
-  to bypass the existing checks. Final observed hotspot state is OFF.
+The currently published release remains **v0.2.2 Preview**. Its immutable release
+notes and assets remain available on the GitHub release page. Do not tag v0.3.0
+until the architectural work and its own validation are complete.

@@ -40,7 +40,7 @@ station visible with no known IPv4. Copy IP uses only current, unexpired data.
 
 ## Tray or window
 
-The GUI is Hebrew RTL; IP/MAC fields are LTR. On Ubuntu's tray host a single click
+The GUI supports English LTR and Hebrew RTL; IP/MAC fields stay LTR. Settings → Language switches immediately. On Ubuntu's tray host a single click
 opens a minimal menu and double-click opens the window. If no compatible host is
 registered, use the main window; optionally install/enable the AppIndicator extension.
 No extension or autostart is enabled by the installer. Reset a corrupt window size

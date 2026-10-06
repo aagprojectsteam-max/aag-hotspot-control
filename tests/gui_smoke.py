@@ -7,6 +7,7 @@ import sys
 import time
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'lib'))
+from aag_hotspot import i18n
 from aag_hotspot.gui import Application, Window, presentation, Gtk, GLib
 
 
@@ -26,7 +27,7 @@ class Transport:
 def main():
     if os.geteuid() == 0: raise RuntimeError('GUI validation must not be root')
     Gtk.Widget.set_default_direction(Gtk.TextDirection.RTL)
-    t = Transport(); app = Application(t)
+    t = Transport(); app = Application(t, settings=i18n.LanguageSettings(initial='he'))
     app.set_application_id('org.aag.Hotspot.SmokeTest')
     app.register(None)
     if app.get_is_remote(): raise RuntimeError('Smoke test already running')
@@ -53,7 +54,7 @@ def main():
         checks['touch_targets'] = all(b.get_size_request().height >= 44 for b in window.buttons.values())
         checks['source_cellular'] = window.values['source'].get_label() == 'FM350 / סלולרי'
         checks['unknown_count_not_zero'] = presentation({'clients': None})['clients'] == 'לא ידוע'
-        checks['wifi_unvalidated_label'] = presentation({'uplink': 'wlan0'})['source'] == 'Wi-Fi (UNVALIDATED)'
+        checks['wifi_unvalidated_label'] = presentation({'uplink': 'wlp87s0f0'})['source'] == i18n._('Wi-Fi (UNVALIDATED)')
         checks['non_root'] = os.geteuid() != 0
         if len(sys.argv) == 2:
             try:

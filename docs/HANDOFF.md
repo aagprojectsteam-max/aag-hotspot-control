@@ -14,7 +14,7 @@ The host-side implementation was exercised on Ubuntu 26.04 x86_64, GNOME, Networ
 
 ## Architecture decisions
 
-The application uses a GTK4/Libadwaita Hebrew RTL GUI plus an independent CLI. Privileged operations pass through a fixed Polkit helper into a bounded controller with ownership tracking. NetworkManager provides AP/DHCP/DNS/NAT behavior; an explicitly scoped `inet aag_hotspot` nftables guard enforces the project's additional local-only policy. The application owns only its generated AAG resources and refuses destructive cleanup of resources it cannot prove it owns.
+The application uses a GTK4/Libadwaita English/Hebrew GUI plus an independent CLI. Privileged operations pass through a fixed Polkit helper into a bounded controller with ownership tracking. NetworkManager provides AP/DHCP/DNS/NAT behavior; an explicitly scoped `inet aag_hotspot` nftables guard enforces the project's additional local-only policy. The application owns only its generated AAG resources and refuses destructive cleanup of resources it cannot prove it owns.
 
 The GUI is never run as root. There is no broad sudoers rule, global firewall flush, automatic NetworkManager restart, modem reconfiguration, or automatic hotspot activation at installation.
 

@@ -1,4 +1,6 @@
 """Short-lived, explicitly authorized password UI; no network operations."""
+from .i18n import _, ngettext
+from .ui_support import text_direction
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
@@ -10,7 +12,8 @@ EXPIRE_SECONDS = 60
 
 class SecretDialog(Adw.Dialog):
     def __init__(self, secret, clipboard):
-        super().__init__(title='סיסמת Wi-Fi', content_width=360)
+        super().__init__(title=_('Wi-Fi password'), content_width=360)
+        self.set_direction(text_direction())
         self.clipboard = clipboard
         self.provider = None
         self.hide_timer = self.copy_timer = self.expire_timer = 0
@@ -23,20 +26,20 @@ class SecretDialog(Adw.Dialog):
         self.field = Gtk.Entry(buffer=self.buffer, visibility=False, editable=False,
                                input_purpose=Gtk.InputPurpose.PASSWORD)
         self.field.set_direction(Gtk.TextDirection.LTR)
-        self.show = Gtk.Button(label='הצג')
+        self.show = Gtk.Button(label=_('Show'))
         self.show.connect('clicked', self.toggle)
-        self.copy = Gtk.Button(label='העתק', tooltip_text='העתק סיסמה')
+        self.copy = Gtk.Button(label=_('Copy'), tooltip_text=_('Copy password'))
         self.copy.connect('clicked', self.copy_password)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
         for edge in ('top', 'bottom', 'start', 'end'):
             getattr(box, 'set_margin_' + edge)(24)
-        box.append(Gtk.Label(label='סיסמת Wi-Fi'))
+        box.append(Gtk.Label(label=_('Wi-Fi password')))
         box.append(self.field)
         buttons = Gtk.Box(spacing=12, homogeneous=True)
         buttons.append(self.show); buttons.append(self.copy); box.append(buttons)
-        self.message = Gtk.Label(label='הסיסמה תוסתר אחרי 30 שניות. החלון ייסגר אחרי דקה.', wrap=True)
+        self.message = Gtk.Label(label=_('The password hides after 30 seconds. This dialog closes after one minute.'), wrap=True)
         box.append(self.message)
-        close = Gtk.Button(label='סגירה')
+        close = Gtk.Button(label=_('Close'))
         close.connect('clicked', lambda _: self.close())
         box.append(close); self.set_child(box)
         self.connect('closed', lambda _: self.clear())
@@ -52,15 +55,15 @@ class SecretDialog(Adw.Dialog):
     def hide_password(self):
         self.cancel_timer('hide_timer')
         self.field.set_visibility(False)
-        self.show.set_label('הצג')
+        self.show.set_label(_('Show'))
         return False
 
-    def toggle(self, *_):
+    def toggle(self, *_args):
         if self.cleared: return
         if self.field.get_visibility(): self.hide_password()
         else:
             self.field.set_visibility(True)
-            self.show.set_label('הסתר')
+            self.show.set_label(_('Hide'))
             self.hide_timer = GLib.timeout_add_seconds(HIDE_SECONDS, self.hide_password)
 
     def clipboard_changed(self, *_):
@@ -76,16 +79,16 @@ class SecretDialog(Adw.Dialog):
             self.clipboard.set_content(None)
         return False
 
-    def copy_password(self, *_):
+    def copy_password(self, *_args):
         if self.cleared: return
         self.clear_clipboard()
         self.provider = Gdk.ContentProvider.new_for_value(self.buffer.get_text())
         if self.clipboard.set_content(self.provider):
             self.copy_timer = GLib.timeout_add_seconds(HIDE_SECONDS, self.clear_clipboard)
-            self.message.set_label('הסיסמה הועתקה. העותק בלוח יימחק אחרי 30 שניות או בסגירת החלון.')
+            self.message.set_label(_('Password copied. The clipboard copy expires after 30 seconds or when this dialog closes.'))
         else:
             self.provider = None
-            self.message.set_label('לא ניתן להעתיק ללוח כרגע.')
+            self.message.set_label(_('Could not copy to the clipboard.'))
 
     def clear(self):
         if self.cleared: return

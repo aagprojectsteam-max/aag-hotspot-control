@@ -3,6 +3,8 @@
 Uses the existing session tray host; installs no extension/autostart/dependency.
 Only explicit menu clicks invoke the GUI's existing polkit action transport.
 """
+from .i18n import _, ngettext
+from . import i18n
 from gi.repository import Gio, GLib
 from .ui_support import icon_directory, icon_name
 
@@ -47,23 +49,22 @@ MENU_XML = '''<node><interface name="com.canonical.dbusmenu">
 
 
 def count_label(count):
-    if type(count) is not int or count < 0: return 'מספר מכשירים לא ידוע'
-    if count == 1: return '1 מכשיר מחובר'
-    return str(count) + ' מכשירים מחוברים'
+    if type(count) is not int or count < 0: return _('Device count unavailable')
+    return ngettext('{count} device connected', '{count} devices connected', count).format(count=count)
 
 
 def model(value, busy=False):
-    mode = {'off': 'כבוי', 'internet': 'אינטרנט', 'local': 'מקומי בלבד'}.get(value.get('mode'), 'מצב לא ידוע')
-    if value.get('health') not in (None, 'OK'): mode = 'מצב לא ידוע'
-    if busy or value.get('phase') in ('starting', 'switching', 'stopping'): mode = 'מעדכן את הרשת…'
+    mode = {'off': _('Off'), 'internet': _('Internet'), 'local': _('Local only')}.get(value.get('mode'), _('Unknown status'))
+    if value.get('health') not in (None, 'OK'): mode = _('Unknown status')
+    if busy or value.get('phase') in ('starting', 'switching', 'stopping'): mode = _('Updating hotspot…')
     count = value.get('clients') if value.get('health') in (None, 'OK') else None
-    title = 'AAG Hotspot — ' + mode
-    if value.get('mode') != 'off': title += ' — ' + count_label(count)
-    rows = [(6, 'פתח AAG Hotspot', 'open'), (10, '', None),
-            (1, 'מצב: ' + mode, None), (5, count_label(count), None)]
+    title = _('AAG Hotspot — {mode}').format(mode=mode)
+    if value.get('mode') != 'off': title = _('{title} — {count}').format(title=title, count=count_label(count))
+    rows = [(6, _('Open AAG Hotspot'), 'open'), (10, '', None),
+            (1, _('Status: {mode}').format(mode=mode), None), (5, count_label(count), None)]
     if value.get('mode') in ('internet', 'local'):
-        rows.extend([(11, '', None), (4, 'כבה Hotspot', 'off')])
-    return {'title': title, 'rows': rows, 'busy': busy, 'icon': icon_name(value.get('mode'))}
+        rows.extend([(11, '', None), (4, _('Turn off hotspot'), 'off')])
+    return {'title': title, 'rows': rows, 'busy': busy, 'icon': icon_name(value.get('mode')), 'direction': i18n.direction()}
 
 
 class Indicator:
@@ -99,17 +100,19 @@ class Indicator:
         self.bus.emit_signal(None, PATH, 'org.freedesktop.DBus.Properties', 'PropertiesChanged',
                              GLib.Variant('(sa{sv}as)', (ITEM, properties, [])))
         self.bus.emit_signal(None, MENU_PATH, MENU, 'LayoutUpdated', GLib.Variant('(ui)', (self.revision, 0)))
+        self.bus.emit_signal(None, MENU_PATH, 'org.freedesktop.DBus.Properties', 'PropertiesChanged',
+                             GLib.Variant('(sa{sv}as)', (MENU, {'TextDirection': GLib.Variant('s', i18n.direction())}, [])))
 
     def property(self, connection, sender, path, interface, name):
         if interface == MENU:
-            values = {'Version': ('u', 3), 'TextDirection': ('s', 'rtl'), 'Status': ('s', 'normal'), 'IconThemePath': ('as', [])}
+            values = {'Version': ('u', 3), 'TextDirection': ('s', i18n.direction()), 'Status': ('s', 'normal'), 'IconThemePath': ('as', [])}
         else:
             icon = self.value['icon']
             values = {key: ('s', '') for key in ('IconThemePath', 'OverlayIconName', 'AttentionIconName', 'AttentionMovieName', 'XAyatanaLabelGuide')}
             values.update({key: ('a(iiay)', []) for key in ('IconPixmap', 'OverlayIconPixmap', 'AttentionIconPixmap')})
             values.update(Category=('s', 'SystemServices'), Id=('s', 'aag-hotspot'), Title=('s', self.value['title']),
                           Status=('s', 'Active'), WindowId=('i', 0), IconName=('s', icon), ItemIsMenu=('b', False),
-                          Menu=('o', MENU_PATH), ToolTip=('(sa(iiay)ss)', (icon, [], 'AAG Hotspot', self.value['title'])),
+                          Menu=('o', MENU_PATH), ToolTip=('(sa(iiay)ss)', (icon, [], _('AAG Hotspot'), self.value['title'])),
                           IconThemePath=('s', str(icon_directory())), XAyatanaLabel=('s', ''))
         pair = values.get(name)
         return GLib.Variant(*pair) if pair else None

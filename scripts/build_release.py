@@ -11,7 +11,7 @@ import tarfile
 ROOT=Path(__file__).resolve().parents[1]
 VERSION='0.2.2'
 TOP='aag-hotspot-control-v'+VERSION
-DIRECTORIES={'bin','lib','desktop','polkit','systemd','config','docs','scripts','tests','.github'}
+DIRECTORIES={'bin','lib','desktop','polkit','systemd','config','docs','scripts','tests','.github','po'}
 TOP_FILES={'README.md','LICENSE','CHANGELOG.md','SECURITY.md','CONTRIBUTING.md','THIRD_PARTY.md','RELEASE_NOTES.md','.gitignore','install.sh','uninstall.sh'}
 
 

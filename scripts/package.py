@@ -22,6 +22,8 @@ SYSTEM_ENV = {'PATH': '/usr/sbin:/usr/bin:/sbin:/bin', 'LC_ALL': 'C',
 def source_map():
     files = {Path('usr/lib/aag-hotspot/aag_hotspot') / p.name: p
              for p in (PROJECT / 'lib/aag_hotspot').glob('*.py')}
+    for catalog in (PROJECT / 'lib/aag_hotspot/locale').glob('*/LC_MESSAGES/aag-hotspot.mo'):
+        files[Path('usr/lib/aag-hotspot/aag_hotspot/locale') / catalog.relative_to(PROJECT / 'lib/aag_hotspot/locale')] = catalog
     files.update({Path('usr/lib/aag-hotspot') / name: PROJECT / 'lib' / name
                   for name in ('entry.py', 'watch.py')})
     files.update({Path('usr/bin') / name: PROJECT / 'bin' / name

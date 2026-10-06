@@ -10,6 +10,7 @@ from unittest.mock import Mock, patch
 sys.dont_write_bytecode = True
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0, '/usr/lib/aag-hotspot' if '--installed' in sys.argv else str(ROOT/'lib'))
+from aag_hotspot import i18n
 from aag_hotspot import gui, tray
 from aag_hotspot.ui_support import Geometry, icon_directory
 from gi.repository import Adw, Gio, GLib, Gtk
@@ -57,10 +58,10 @@ def shot(widget,name):
 
 def main():
     if os.geteuid()==0:return 2
-    OUT.mkdir(parents=True,exist_ok=True)
+    OUT.mkdir(exist_ok=True)
     Gtk.Settings.get_default().set_property('gtk-enable-animations',False)
     Adw.StyleManager.get_default().set_color_scheme(Adw.ColorScheme.FORCE_LIGHT)
-    t=Transport();app=gui.Application(t);app.set_application_id('org.aag.Hotspot.UIReview');app.register(None)
+    t=Transport();app=gui.Application(t, settings=i18n.LanguageSettings(initial='he'));app.set_application_id('org.aag.Hotspot.UIReview');app.register(None)
     if app.get_is_remote():raise RuntimeError('Review app already running')
     checks={};sizes=[]
     with tempfile.TemporaryDirectory(prefix='aag-ui-geometry-') as directory:

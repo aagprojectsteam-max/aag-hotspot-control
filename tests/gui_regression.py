@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'lib'))
+from aag_hotspot import i18n
 from aag_hotspot import gui
 
 
@@ -32,7 +33,7 @@ def main():
     if os.geteuid() == 0: raise SystemExit('GUI tests must be unprivileged')
     gui.Gtk.Widget.set_default_direction(gui.Gtk.TextDirection.RTL)
     t = Transport()
-    app = gui.Application(t)
+    app = gui.Application(t, settings=i18n.LanguageSettings(initial='he'))
     app.set_application_id('org.aag.Hotspot.Regression')
     app.register(None)
     if app.get_is_remote(): raise SystemExit('A regression window is already running')
